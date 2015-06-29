@@ -34,7 +34,7 @@ JST.player = _.template('\
             <div class="player-delete"></div>\
         </div>'
         , {variable: "data"}
-        );
+);
 
 
 app.models.Player = Backbone.Model.extend({
@@ -196,9 +196,9 @@ appdata.lobby.players = new app.collections.Players(testusers);
 
 // Player View Rendern
 
-//var $playerListContainer = $(".list");
-//var playersView = new app.views.Players({collection: appdata.players});
-//$playerListContainer.append(playersView.render().el);
+var $playerListContainer = $(".list");
+var playersView = new app.views.Players({collection: appdata.lobby.players});
+$playerListContainer.append(playersView.render().el);
 
 
 // Updates (create, update, delete)
@@ -297,48 +297,48 @@ appdata.lobby.players = new app.collections.Players(testusers);
 //}
 
 // TODO Einstellungen beachten
-appdata.lobby.radius = 4000;
-// TODO auslesen per GPS
-appdata.lobby.center = {lat: 52.283343, lng: 8.035860};
-
-
-// ---> admin startet
-// ---> Wartezeit
-
-// ---> Spielbeginn
-// Spielstart
-
-var mapOptions = {
-    center: appdata.lobby.center,
-    zoom: 11,
-    panControl: false,
-    zoomControl: true,
-    zoomControlOptions: {
-        style: google.maps.ZoomControlStyle.SMALL
-    },
-    mapTypeControl: false,
-    scaleControl: false,
-    streetViewControl: false,
-    overviewMapControl: false
-
-};
-appdata.lobby.map = new google.maps.Map(document.getElementById("game-map"), mapOptions);
-
-//map.addListener("click", function(e) {
-//    console.log(e);
+//appdata.lobby.radius = 4000;
+//// TODO auslesen per GPS
+//appdata.lobby.center = {lat: 52.283343, lng: 8.035860};
+//
+//
+//// ---> admin startet
+//// ---> Wartezeit
+//
+//// ---> Spielbeginn
+//// Spielstart
+//
+//var mapOptions = {
+//    center: appdata.lobby.center,
+//    zoom: 11,
+//    panControl: false,
+//    zoomControl: true,
+//    zoomControlOptions: {
+//        style: google.maps.ZoomControlStyle.SMALL
+//    },
+//    mapTypeControl: false,
+//    scaleControl: false,
+//    streetViewControl: false,
+//    overviewMapControl: false
+//
+//};
+//appdata.lobby.map = new google.maps.Map(document.getElementById("game-map"), mapOptions);
+//
+////map.addListener("click", function(e) {
+////    console.log(e);
+////});
+//
+//new google.maps.Circle({
+//    strokeColor: '#FF0000',
+//    strokeOpacity: 1,
+//    strokeWeight: 2,
+//    fillColor: '#FFFFFF',
+//    fillOpacity: 0,
+//    clickable: false,
+//    map: appdata.lobby.map,
+//    center: appdata.lobby.center,
+//    radius: appdata.lobby.radius
 //});
-
-new google.maps.Circle({
-    strokeColor: '#FF0000',
-    strokeOpacity: 1,
-    strokeWeight: 2,
-    fillColor: '#FFFFFF',
-    fillOpacity: 0,
-    clickable: false,
-    map: appdata.lobby.map,
-    center: appdata.lobby.center,
-    radius: appdata.lobby.radius
-});
 
 // TODO zeit pos nächste mrx pos
 
@@ -363,36 +363,36 @@ new google.maps.Circle({
 // Zeitablauf mrx gewinnt -> anzeige -> spielende
 // Spieler finde x -> anzeige -> spielende
 
-var playerPositions = {
-    123: {lat: 52.28389822822902, lng: 8.00851821899414},
-    124: {lat: 52.28976460764183, lng: 8.042678833007812}
-};
-
-appdata.lobby.playerMarkers = [];
-
-playerPositions.forEach(function(player) {
-    playerMarkers.push(new google.maps.Marker({
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 6,
-            strokeWeight: 9,
-            strokeColor: app.groupColors[player.group]
-        },
-        position: player.pos,
-        map: map
-    }));
-});
-
-var infowindow = new google.maps.InfoWindow({
-    content: "Username: 500 Meter Entfernt",
-    disableAutoPan: true
-});
-
-playerMarkers.forEach(function(marker) {
-    marker.addListener("click", function() {
-        infowindow.open(map, this);
-    });
-});
+//var playerPositions = {
+//    123: {lat: 52.28389822822902, lng: 8.00851821899414},
+//    124: {lat: 52.28976460764183, lng: 8.042678833007812}
+//};
+//
+//appdata.lobby.playerMarkers = [];
+//
+//playerPositions.forEach(function(player) {
+//    playerMarkers.push(new google.maps.Marker({
+//        icon: {
+//            path: google.maps.SymbolPath.CIRCLE,
+//            scale: 6,
+//            strokeWeight: 9,
+//            strokeColor: app.groupColors[player.group]
+//        },
+//        position: player.pos,
+//        map: map
+//    }));
+//});
+//
+//var infowindow = new google.maps.InfoWindow({
+//    content: "Username: 500 Meter Entfernt",
+//    disableAutoPan: true
+//});
+//
+//playerMarkers.forEach(function(marker) {
+//    marker.addListener("click", function() {
+//        infowindow.open(map, this);
+//    });
+//});
 
 //var marker = new google.maps.Marker({
 //    position: center,
