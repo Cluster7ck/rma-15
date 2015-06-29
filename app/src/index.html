@@ -11,48 +11,48 @@
 	<script src="js/vendor/jquery.mobile-1.4.5.min.js"></script>
 </head>
 	<body>
-		<div data-role="page" id="one">
+		<div data-role="page" id="landing">
 			<div role="main" class="ui-content ui-top-margin">
 
-				<h1 class="ui-text-mid">Mister X</h1>
+				<h1 class="ui-text-mid">Agent Z</h1>
 				
 				<div class="ui-top-margin">
-					<a href="#newgame" class="ui-btn">Neues Spiel</a>
-					<a href="#findgame" class="ui-btn">Spiel beitreten</a>	
-					<a href="#instructions" class="ui-btn">Anleitung</a>
+                                    <a href="#newgame" class="ui-btn">Neues Spiel</a>
+                                    <a href="#joinLobby" data-rel="popup" data-position-to="window" class="ui-btn" data-transition="pop">Spiel beitreten</a>	
+                                    <a href="#instructions" class="ui-btn">Anleitung</a>
 				</div>
-
+                                <div data-role="popup" id="joinLobby" data-theme="a" class="ui-corner-all">
+                                        <form>
+                                            <div style="padding:10px 20px;">
+                                                <h3>Lobby Id & Passwort</h3>
+                                                <label for="un" class="ui-hidden-accessible">Id</label>
+                                                <input name="user" id="un" value="" placeholder="1234" data-theme="a" type="text">
+                                                <label for="pw" class="ui-hidden-accessible">Passwort:</label>
+                                                <input name="pass" id="pw" value="" placeholder="Passwort" data-theme="a" type="password">
+                                                <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Beitreten</button>
+                                            </div>
+                                        </form>
+                                </div>
 			</div><!-- /content -->
 		</div><!-- /page Start Page -->
 		
+
+                
+                
 		<div data-role="page" id="newgame" data-theme="a">
 
 			<div role="main" class="ui-content">
 				<div class="ui-head-wrapper">
-					<div class="ui-nodisc-icon" style="float:right"><!-- Classes added to the wrapper -->
-	    				<a href="#lobbysettings" class="ui-btn ui-icon-gear ui-btn-icon-notext ui-btn-inline">Einstellungen</a>
+                                    <div class="ui-nodisc-icon" style="float:right"><!-- Classes added to the wrapper -->
+                                    <a href="#lobbysettings" class="ui-btn ui-icon-gear ui-btn-icon-notext ui-btn-inline">Einstellungen</a>
 	    			</div>
-					<h2>Neue Lobby</h2>
+                                    <h2>Neue Lobby</h2>
 				</div>
 
 
-				<ul data-role="listview" data-inset="true">
-						<li class="ui-field-contain">
-							<label>Name:</label>	<label>Varys</label>
-						</li>
-						<li class="ui-field-contain">
-							<label>Spitzname:</label>	<label>Die Spinne</label>
-						</li>
-						<li class="ui-field-contain">
-							<label>Herkunft:</label>	<label>Essos</label>
-						</li>
-						<li class="ui-field-contain">
-							<label>Job:</label>	<label>Spitzelmeister</label>
-						</li>
-						<li class="ui-field-contain">
-							<label>Frisur:</label>	<label>Glatze</label>
-						</li>
-				</ul>
+				<div class="playerlist">
+                                
+				</div>
 
 				<a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Lobby schliessen</a>
 			</div><!-- /content -->
