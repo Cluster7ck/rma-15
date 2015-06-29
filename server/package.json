@@ -1,0 +1,7 @@
+{
+  "name": "mrx-server",
+  "version": "1.0.0",
+  "dependencies": {
+    "ws": "^0.7.2"
+  }
+}
