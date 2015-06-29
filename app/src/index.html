@@ -12,67 +12,108 @@
 </head>
 	<body>
 		<div data-role="page" id="one">
-		
-			<div data-role="header">
-				<h1>Varys</h1>
-			</div><!-- /header -->
+			<div role="main" class="ui-content ui-top-margin">
 
-			<div role="main" class="ui-content">
-				<h2>Mister X</h2>
+				<h1 class="ui-text-mid">Mister X</h1>
 				
-				 
-					<h4>Navigation</h4>
-					<ul data-role="listview">
-						<li><a href="#two" data-transition="flip">&Uuml;ber mich</a></li>
-						<li><a href="#third" data-transition="flow">Projekte</a></li>
-						<li><a href="#fourth" data-transition="slideup">Kontakt</a></li>
-					</ul>
-				
+				<div class="ui-top-margin">
+					<a href="#newgame" class="ui-btn">Neues Spiel</a>
+					<a href="#findgame" class="ui-btn">Spiel beitreten</a>	
+					<a href="#instructions" class="ui-btn">Anleitung</a>
+				</div>
+
 			</div><!-- /content -->
-
-			<div data-role="footer" data-theme="a">
-				<h4>Sneaky Spider</h4>
-			</div><!-- /footer -->
-		</div><!-- /page one -->
+		</div><!-- /page Start Page -->
 		
-		<!-- Start of second page: #two -->
-		<div data-role="page" id="two" data-theme="a">
-
-			<div data-role="header">
-				<h1>Varys</h1>
-			</div><!-- /header -->
+		<div data-role="page" id="newgame" data-theme="a">
 
 			<div role="main" class="ui-content">
-				<h2>Steckbrief</h2>
-			
-				<img src="varys2.png" />
-			<ul data-role="listview" data-inset="true">
-					<li class="ui-field-contain">
-						<label>Name:</label>	<label>Varys</label>
-					</li>
-					<li class="ui-field-contain">
-						<label>Spitzname:</label>	<label>Die Spinne</label>
-					</li>
-					<li class="ui-field-contain">
-						<label>Herkunft:</label>	<label>Essos</label>
-					</li>
-					<li class="ui-field-contain">
-						<label>Job:</label>	<label>Spitzelmeister</label>
-					</li>
-					<li class="ui-field-contain">
-						<label>Frisur:</label>	<label>Glatze</label>
-					</li>
+				<div class="ui-head-wrapper">
+					<div class="ui-nodisc-icon" style="float:right"><!-- Classes added to the wrapper -->
+	    				<a href="#lobbysettings" class="ui-btn ui-icon-gear ui-btn-icon-notext ui-btn-inline">Einstellungen</a>
+	    			</div>
+					<h2>Neue Lobby</h2>
+				</div>
+
+
+				<ul data-role="listview" data-inset="true">
+						<li class="ui-field-contain">
+							<label>Name:</label>	<label>Varys</label>
+						</li>
+						<li class="ui-field-contain">
+							<label>Spitzname:</label>	<label>Die Spinne</label>
+						</li>
+						<li class="ui-field-contain">
+							<label>Herkunft:</label>	<label>Essos</label>
+						</li>
+						<li class="ui-field-contain">
+							<label>Job:</label>	<label>Spitzelmeister</label>
+						</li>
+						<li class="ui-field-contain">
+							<label>Frisur:</label>	<label>Glatze</label>
+						</li>
 				</ul>
-			<a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zur&uuml;ck</a>
+
+				<a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Lobby schliessen</a>
 			</div><!-- /content -->
 
-			<div data-role="footer">
-				<h4>Sneaky Spider</h4>
-			</div><!-- /footer -->
-		</div><!-- /page two -->
+		</div><!-- /page New Game -->
 		
-		<!-- Start of third page: #popup -->
-		<div data-role="page" id="third">
+		<div data-role="page" id="lobbysettings" data-theme="a">
+			<div role="main" class="ui-content">
+				<h1 class="ui-text-mid">Einstellungen</h1>
+
+				<form>
+					<ul data-role="listview" data-inset="true">
+						<li class="ui-field-contain">
+	                            <label for="slider2">Radius in m:</label>
+	                            <input type="range" name="slider2" id="slider2" value="2000" min="300" max="5000" data-highlight="true">
+	                    </li>
+	                    <li class="ui-field-contain">
+	                            <label for="slider2">Zeitlimit in min:</label>
+	                            <input type="range" name="slider2" id="slider2" value="30" min="5" max="120" data-highlight="true">
+	                    </li>
+	                    <li class="ui-field-contain">
+	                            <label for="slider2">Positionsupdate in min:</label>
+	                            <input type="range" name="slider2" id="slider2" value="3" min="1" max="10" data-highlight="true">
+	                    </li>
+	                    <li class="ui-field-contain">
+	                            <label for="slider2">Versteckzeit in min:</label>
+	                            <input type="range" name="slider2" id="slider2" value="3" min="1" max="15" data-highlight="true">
+	                    </li>
+	                    <li class="ui-field-contain">
+	                            <label for="slider2">Max-Timeout in sec:</label>
+	                            <input type="range" name="slider2" id="slider2" value="30" min="10" max="60" data-highlight="true">
+	                    </li>
+						<li class="ui-field-contain">
+                            <label for="select-choice-1" class="select">Karten Stil:</label>
+                            <select name="select-choice-1" id="select-choice-1">
+                                <option value="standard">Standard</option>
+                                <option value="rush">Blueprint</option>
+                                <option value="express">Matrix</option>
+                            </select>
+                        </li>
+	                    <li class="ui-body ui-body-b">
+	                        <div class="ui-grid-a">
+	                                <div class="ui-block-a">
+	                                	<div class="button-wrap">
+	                                		<button type="submit" class="ui-btn">Abrechen</button>
+	                                	</div>
+	                                </div>
+	                                <div class="ui-block-b">
+	                                	<div class="button-wrap">
+	                                		<button type="submit" class="ui-btn">Speichern</button>
+	                                	</div>
+	                                </div>
+	                        </div>
+	                    </li>
+					</ul>
+				</form>
+				<a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zurück zur Lobby</a>
+			</div>
+		</div><!-- /page Lobby Settings-->
+
+		<div data-role="page" id="findgame">
 
 			<div data-role="header" data-theme="b">
 				<h1>Projekte</h1>
@@ -122,12 +163,9 @@
 					</ul>
 				</form>
 				<a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zur&uuml;ck</a>
-			<div data-role="footer">
-				<h4>Sneaky Spider</h4>
-			</div><!-- /footer -->
-		</div><!-- /page popup -->
+		</div><!-- /page Find Game-->
 		
-		<div data-role="page" id="fourth" data-theme="a">
+		<div data-role="page" id="instructions" data-theme="a">
 
 			<div data-role="header">
 				<h1>Varys</h1>
@@ -150,6 +188,6 @@
 			<div data-role="footer">
 				<h4>Sneaky Spider</h4>
 			</div><!-- /footer -->
-		</div><!-- /page two -->
+		</div><!-- /page Instructions -->
 	</body>
 </html>

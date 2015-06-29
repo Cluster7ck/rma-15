@@ -21,19 +21,20 @@ var appdata = {
     self: {}
 };
 // TODO save / read from localstorage
-appdata.self.name = "Noname",
-        JST = {};
+appdata.self.name = "Noname";
+JST = {};
 JST.player = _.template('\
-<div class="player-name"><%- data.name %></div>\
-<div class="player-info">\
-    <% if (data.mrx) { %>\
-    <div class="player-x"></div>\
-    <% } else { %>\
-    <div class="player-group" data-group="<%- data.group %>"></div>\
-    <% } %>\
-    <div class="player-delete"></div>\
-</div>'
-        , {variable: "data"});
+        <div class="player-name"><%- data.name %></div>\
+        <div class="player-info">\
+            <% if (data.mrx) { %>\
+            <div class="player-x"></div>\
+            <% } else { %>\
+            <div class="player-group" data-group="<%- data.group %>"></div>\
+            <% } %>\
+            <div class="player-delete"></div>\
+        </div>'
+        , {variable: "data"}
+        );
 
 
 app.models.Player = Backbone.Model.extend({
@@ -120,7 +121,10 @@ app.views.Players = Backbone.View.extend({
         this.$el.append(playerView.render().el);
     },
     close: function() {
-        // TODO remove list
+        //Feuer remove event auf alle Player
+        this.collection.each(function(player) {
+            player.trigger("remove");
+        });
     }
 });
 
