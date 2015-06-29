@@ -4,11 +4,13 @@
 	<title>Page Title</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link rel="stylesheet" href="css/spytheme.css" />
+	<link rel="stylesheet" href="css/spytheme.css" />   
 	<link rel="stylesheet" href="css/jquery.mobile.icons-1.4.5.css" />
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" /> 
 	<script src="js/vendor/jquery-2.1.4.js"></script>
 	<script src="js/vendor/jquery.mobile-1.4.5.min.js"></script>
+        
+        
 </head>
 	<body>
 		<div data-role="page" id="landing">
@@ -22,13 +24,13 @@
                                     <a href="#instructions" class="ui-btn">Anleitung</a>
 				</div>
                                 <div data-role="popup" id="joinLobby" data-theme="a" class="ui-corner-all">
-                                        <form>
+                                        <form id="submitJoin">
                                             <div style="padding:10px 20px;">
-                                                <h3>Lobby Id & Passwort</h3>
+                                                <h3>Lobby Id &amp; Passwort</h3>
                                                 <label for="un" class="ui-hidden-accessible">Id</label>
-                                                <input name="user" id="un" value="" placeholder="1234" data-theme="a" type="text">
+                                                <input name="gameid" id="un" value="" placeholder="1234" data-theme="a" type="text">
                                                 <label for="pw" class="ui-hidden-accessible">Passwort:</label>
-                                                <input name="pass" id="pw" value="" placeholder="Passwort" data-theme="a" type="password">
+                                                <input name="password" id="pw" value="" placeholder="Passwort" data-theme="a" type="password">
                                                 <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Beitreten</button>
                                             </div>
                                         </form>
@@ -189,5 +191,6 @@
 				<h4>Sneaky Spider</h4>
 			</div><!-- /footer -->
 		</div><!-- /page Instructions -->
+                <script src="js/buttons.js"></script>
 	</body>
 </html>
