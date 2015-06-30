@@ -12,10 +12,42 @@ var httpServer = http.createServer();
 
 httpServer.on("request", function(req, res) {
     
-    console.log(url.parse(req.url));
+    var headers = {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
+    };
 
-    res.writeHead(200, {"Content-Type": "application/json"});
-    res.end("Hello World\n");
+    var parsedURL = url.parse(req.url, true);
+    var action = parsedURL.pathname.slice(1);
+    if (action == "joinLobby") {
+
+        var lobbyID = parseInt(parsedURL.query.id);
+        var pw = parsedURL.query.pw;
+        var name = parsedURL.query.name;
+        
+        log.http("joinLobby LobbyID: " + lobbyID);
+        
+        var lobby = lobbys[lobbyID];
+        if(Number.isNaN(lobbyID) || lobby === undefined) {
+            res.writeHead(404, headers);
+            res.end("{error: \"Lobby nicht gefunden\"}");
+            return;
+        }
+        if(lobby.pw !== pw) {
+            res.writeHead(401, headers);
+            res.end("{error: \"Passwort falsch\"}");
+            return;
+        }
+        res.writeHead(200, headers);
+        res.end("{uid: 2}");
+        return;
+        
+    } else if (action == "createLobby") {
+        
+    }
+
+    res.writeHead(404, headers);
+    res.end("unbekannte action");
 
 });
 
@@ -24,7 +56,22 @@ httpServer.on("clientError", function(err) {
 });
 
 
-//httpServer.listen(serverPort);
+httpServer.listen(serverPort);
+
+var lobbys = Object.create(null);
+
+lobbys[123] = {
+    pw: "pw",
+    players: {
+        1: {
+            name: "foo"
+        }
+    }
+}
+
+
+
+
 
 
 //
