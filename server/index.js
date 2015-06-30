@@ -19,44 +19,20 @@ function writeErr(res, status, msg) {
 var httpServer = http.createServer();
 
 httpServer.on("request", function(req, res) {
-    
-    if(req.method != "GET") {
+
+    if (req.method !== "GET") {
         writeErr(res, 501);
         return;
     }
 
     var parsedURL = url.parse(req.url, true);
     var action = parsedURL.pathname.slice(1);
-    if (action == "joinLobby") {
-
-        var lobbyID = parseInt(parsedURL.query.id);
-        var pw = parsedURL.query.pw;
-        var name = parsedURL.query.name;
-
-        log.http("joinLobby LobbyID: " + lobbyID);
-
-        var lobby = lobbys[lobbyID];
-        if (Number.isNaN(lobbyID) || lobby === undefined) {
-            res.writeHead(404, deafaultHeaders);
-            res.end("{error: \"Lobby nicht gefunden\"}");
-            return;
-        }
-        if (lobby.pw !== pw) {
-            res.writeHead(401, deafaultHeaders);
-            res.end("{error: \"Passwort falsch\"}");
-            return;
-        }
-        res.writeHead(200, deafaultHeaders);
-        res.end("{uid: 2}");
-        return;
-
-    } else if (action == "createLobby") {
-
+    var actionFn = getActions[action];
+    if (actionFn) {
+        actionFn(req, res, parsedURL);
+    } else {
+        writeErr(res, 404);
     }
-
-
-    res.writeHead(404, deafaultHeaders);
-    res.end("unbekannte action");
 
 });
 
@@ -65,12 +41,34 @@ httpServer.on("clientError", function(err) {
 });
 
 httpServer.listen(serverPort);
+log.info("HTTP Server running on Port " + serverPort);
 
 var getActions = {
-    "joinLobby" : function(req, res, parsedURL) {
-        
+    "joinLobby": function(req, res, parsedURL) {
+        var lobbyID = parseInt(parsedURL.query.id);
+        var pw = parsedURL.query.pw;
+        var name = parsedURL.query.name;
+
+        log.http("joinLobby LobbyID: " + lobbyID);
+
+        var lobby = lobbys[lobbyID];
+        if (Number.isNaN(lobbyID) || lobby === undefined) {
+            res.writeHead(404, defaultHeaders);
+            res.end("{error: \"Lobby nicht gefunden\"}");
+            return;
+        }
+        if (lobby.pw !== pw) {
+            res.writeHead(401, defaultHeaders);
+            res.end("{error: \"Passwort falsch\"}");
+            return;
+        }
+        res.writeHead(200, defaultHeaders);
+        res.end("{uid: 2}");
+    },
+    "createLobby": function(req, res, parsedURL) {
+
     }
-}
+};
 
 
 
@@ -83,7 +81,7 @@ lobbys[123] = {
             name: "foo"
         }
     }
-}
+};
 
 
 

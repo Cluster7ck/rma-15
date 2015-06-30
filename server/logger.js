@@ -17,7 +17,6 @@ function formatMsg(msg) {
 logger.http = function(msg) {
     cursor
             .green()
-            .bg.black()
             .write("HTTP")
             .reset()
             .write(" ")
@@ -28,7 +27,6 @@ logger.http = function(msg) {
 logger.ws = function(msg) {
     cursor
             .cyan()
-            .bg.black()
             .write("WebSocket")
             .reset()
             .write(" ")
@@ -49,7 +47,6 @@ logger.err = function(msg) {
 logger.info = function(msg) {
     cursor
             .brightBlue()
-            .bg.brightBlack()
             .write("Info")
             .reset()
             .write(" ")
