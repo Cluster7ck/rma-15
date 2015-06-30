@@ -27,6 +27,7 @@ httpServer.on("request", function(req, res) {
 
     var parsedURL = url.parse(req.url, true);
     var action = parsedURL.pathname.slice(1);
+    log.http("Action: '" + action + "'");
     var actionFn = getActions[action];
     if (actionFn) {
         actionFn(req, res, parsedURL);
@@ -54,37 +55,45 @@ var getActions = {
         var lobby = lobbys[lobbyID];
         if (Number.isNaN(lobbyID) || lobby === undefined) {
             res.writeHead(404, defaultHeaders);
-            res.end("{error: \"Lobby nicht gefunden\"}");
+            res.end("{errorMessage: \"Lobby nicht gefunden\"}");
             return;
         }
         if (lobby.pw !== pw) {
             res.writeHead(401, defaultHeaders);
-            res.end("{error: \"Passwort falsch\"}");
+            res.end("{errorMessage: \"Passwort falsch\"}");
             return;
         }
         res.writeHead(200, defaultHeaders);
         res.end("{uid: 2}");
     },
     "createLobby": function(req, res, parsedURL) {
+        var pw = parsedURL.query.pw;
+        var name = parsedURL.query.name;
 
     }
 };
 
+var lobbys = {
+    counter: 0,
+    newLobby: function(id, pw) {
+        
+    },
+    get: function(id) {
+        return this.byId[id];
+    },
+    byId: Object.create(null)
+};
 
-
-var lobbys = Object.create(null);
-
-lobbys[123] = {
+lobbys.byId[123] = {
     pw: "pw",
     players: {
         1: {
             name: "foo"
         }
-    }
+    },
+    counter: 0
+    
 };
-
-
-
 
 
 
