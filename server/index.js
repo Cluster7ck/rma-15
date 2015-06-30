@@ -1,6 +1,7 @@
-"use strict"
-var http = require('http');
-var WebSocketServer = require('ws').Server;
+"use strict";
+var http = require("http");
+var url = require("url");
+var WebSocketServer = require("ws").Server;
 
 var log = require("./logger.js");
 
@@ -10,6 +11,8 @@ var serverPort = 8080;
 var httpServer = http.createServer();
 
 httpServer.on("request", function(req, res) {
+    
+    console.log(url.parse(req.url));
 
     res.writeHead(200, {"Content-Type": "application/json"});
     res.end("Hello World\n");
@@ -17,18 +20,11 @@ httpServer.on("request", function(req, res) {
 });
 
 httpServer.on("clientError", function(err) {
-    console.log(err);
+    log.err(err);
 });
 
 
-
-
-httpServer.listen(serverPort, "127.0.0.1");
-
-log.http("HTTP Server running on Port: " + serverPort);
-log.ws("HTTP Server running on Port: " + serverPort);
-log.err("HTTP Server running on Port: " + serverPort);
-log.info("HTTP Server running on Port: " + serverPort);
+//httpServer.listen(serverPort);
 
 
 //

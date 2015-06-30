@@ -1,9 +1,18 @@
-"use strict"
+"use strict";
+/*
+ * Simple Logging Funktionen mit Farbe!
+ */
+var inspect = require("util").inspect;
 
 var ansi = require("ansi");
 var cursor = ansi(process.stdout);
+var cursorErr = ansi(process.stderr);
 
 var logger = module.exports = {};
+
+function formatMsg(msg) {
+    return (typeof msg === "string") ? msg : inspect(msg);
+}
 
 logger.http = function(msg) {
     cursor
@@ -12,9 +21,9 @@ logger.http = function(msg) {
             .write("HTTP")
             .reset()
             .write(" ")
-            .write(msg)
+            .write(formatMsg(msg))
             .write("\n");
-}
+};
 
 logger.ws = function(msg) {
     cursor
@@ -23,27 +32,27 @@ logger.ws = function(msg) {
             .write("WebSocket")
             .reset()
             .write(" ")
-            .write(msg)
+            .write(formatMsg(msg))
             .write("\n");
-}
+};
 
 logger.err = function(msg) {
-    cursor
-            .red()
+    cursorErr
+            .brightRed()
             .write("Error")
             .reset()
             .write(" ")
-            .write(msg)
+            .write(formatMsg(msg))
             .write("\n");
-}
+};
 
 logger.info = function(msg) {
     cursor
-            .blue()
+            .brightBlue()
+            .bg.brightBlack()
             .write("Info")
             .reset()
             .write(" ")
-            .write(msg)
-            .reset()
+            .write(formatMsg(msg))
             .write("\n");
-}
+};
