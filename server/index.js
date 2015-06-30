@@ -2,51 +2,60 @@
 var http = require("http");
 var url = require("url");
 var WebSocketServer = require("ws").Server;
-
 var log = require("./logger.js");
 
 var serverPort = 8080;
+
+var defaultHeaders = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*"
+};
+
+function writeErr(res, status, msg) {
+    res.writeHead(status, defaultHeaders);
+    res.end("{errorMessage: \"" + msg !== undefined ? msg : http.STATUS_CODES[status] + "\"}");
+}
 
 var httpServer = http.createServer();
 
 httpServer.on("request", function(req, res) {
     
-    var headers = {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-    };
-    
+    if(req.method != "GET") {
+        writeErr(res, 501);
+        return;
+    }
+
     var parsedURL = url.parse(req.url, true);
     var action = parsedURL.pathname.slice(1);
     if (action == "joinLobby") {
-        
+
         var lobbyID = parseInt(parsedURL.query.id);
         var pw = parsedURL.query.pw;
         var name = parsedURL.query.name;
-        
+
         log.http("joinLobby LobbyID: " + lobbyID);
-        
+
         var lobby = lobbys[lobbyID];
-        if(Number.isNaN(lobbyID) || lobby === undefined) {
-            res.writeHead(404, headers);
+        if (Number.isNaN(lobbyID) || lobby === undefined) {
+            res.writeHead(404, deafaultHeaders);
             res.end("{error: \"Lobby nicht gefunden\"}");
             return;
         }
-        if(lobby.pw !== pw) {
-            res.writeHead(401, headers);
+        if (lobby.pw !== pw) {
+            res.writeHead(401, deafaultHeaders);
             res.end("{error: \"Passwort falsch\"}");
             return;
         }
-        res.writeHead(200, headers);
+        res.writeHead(200, deafaultHeaders);
         res.end("{uid: 2}");
         return;
-        
+
     } else if (action == "createLobby") {
-        
+
     }
 
 
-    res.writeHead(404, headers);
+    res.writeHead(404, deafaultHeaders);
     res.end("unbekannte action");
 
 });
@@ -55,8 +64,15 @@ httpServer.on("clientError", function(err) {
     log.err(err);
 });
 
-
 httpServer.listen(serverPort);
+
+var getActions = {
+    "joinLobby" : function(req, res, parsedURL) {
+        
+    }
+}
+
+
 
 var lobbys = Object.create(null);
 
