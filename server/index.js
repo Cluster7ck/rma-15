@@ -7,7 +7,6 @@ var log = require("./logger.js");
 
 var serverPort = 8080;
 
-
 var httpServer = http.createServer();
 
 httpServer.on("request", function(req, res) {
@@ -16,11 +15,11 @@ httpServer.on("request", function(req, res) {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*"
     };
-
+    
     var parsedURL = url.parse(req.url, true);
     var action = parsedURL.pathname.slice(1);
     if (action == "joinLobby") {
-
+        
         var lobbyID = parseInt(parsedURL.query.id);
         var pw = parsedURL.query.pw;
         var name = parsedURL.query.name;
@@ -45,6 +44,7 @@ httpServer.on("request", function(req, res) {
     } else if (action == "createLobby") {
         
     }
+
 
     res.writeHead(404, headers);
     res.end("unbekannte action");
