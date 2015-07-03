@@ -4,7 +4,7 @@ var app = {
     views: {},
     settings: {
         serverHost: "localhost",
-        serverPort: "8989"
+        serverPort: "8080"
     }
 };
 //TODO fill
@@ -192,13 +192,13 @@ appdata.self.isMrx = false;
 // Lobby Page aufrufen
 // Player Collection erstellen
 
-appdata.lobby.players = new app.collections.Players(testusers);
+//appdata.lobby.players = new app.collections.Players(testusers);
 
 // Player View Rendern
 
-var $playerListContainer = $(".list");
-var playersView = new app.views.Players({collection: appdata.lobby.players});
-$playerListContainer.append(playersView.render().el);
+//var $playerListContainer = $(".list");
+//var playersView = new app.views.Players({collection: appdata.lobby.players});
+//$playerListContainer.append(playersView.render().el);
 
 
 // Updates (create, update, delete)
@@ -264,31 +264,50 @@ $playerListContainer.append(playersView.render().el);
 //    }
 //});
 
+//var ws = new WebSocket("ws://" + app.settings.serverHost + ":" + app.settings.serverPort + "/ws?lid=1");
 
-//
-//document.getElementById("button-create-lobby").addEventListener(function(e) {
-//    
-//});
+function wsevents(ws) {
+    ws.onopen = function(e) {
+        console.log(e);
+    };
 
+    ws.onmessage = function(e) {
+        console.log(e);
+    };
 
-//var ws = new WebSocket("ws://" + serverHost + ":" + serverPort);
-//
-//ws.onopen = function(e) {
-//    console.log(e);
-//};
-//
-//ws.onmessage = function(e) {
-//    console.log(e);
-//};
-//
-//ws.onclose = function(e) {
-//    console.log(e);
-//
-//};
-//
-//ws.onerror = function(e) {
-//    console.log(e);
-//};
+    ws.onclose = function(e) {
+        console.log(e);
+    };
+
+    ws.onerror = function(e) {
+        console.log(e);
+    };
+}
+
+var lid;
+var ws;
+$("#createLobby").on("click", function() {
+    $.getJSON("http://localhost:8080/createLobby", {name: "adminName", pw: "123"}).done(function(json) {
+        console.log(json);
+        lid = json.lid;
+    });
+});
+
+$("#joinLobby").on("click", function() {
+    $.getJSON("http://localhost:8080/joinLobby", {name: "PlayerName", pw: "123", lid: lid}).done(function(json) {
+        console.log(json);
+    });
+});
+
+$("#ws1").on("click", function() {
+    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=0");
+    wsevents(ws);
+});
+
+$("#ws2").on("click", function() {
+    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=1");
+    wsevents(ws);
+});
 
 //var getSocket = function() {
 //    return new Promise(function(resolve, reject) {

@@ -27,7 +27,7 @@ logger.http = function(msg) {
 logger.ws = function(msg) {
     cursor
             .cyan()
-            .write("WebSocket")
+            .write("WebSock")
             .reset()
             .write(" ")
             .write(formatMsg(msg))
