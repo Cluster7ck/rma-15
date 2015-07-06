@@ -204,7 +204,7 @@ var lobbyPrototype = {
                     isAdmin: this.admin === player
                 });
             }
-        });
+        }, this);
         return players;
     }
 };
@@ -312,7 +312,7 @@ wss.on("connection", function connection(ws) {
     });
 
     ws.on("close", function(code) {
-        
+        console.log("close", code);
     });
 
 
