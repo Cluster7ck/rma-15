@@ -31,7 +31,7 @@ var ERROR_MSG = {
 // HTTP Anfrage mit Fehler beenden
 function writeErr(res, status, errCode) {
     var msg = errCode ? ERROR_MSG[errCode] : http.STATUS_CODES[status];
-    log.http("Error: " + status + " " + msg);
+    log.http("End with Error:", status, msg);
     res.writeHead(status, defaultHeaders);
     res.end(JSON.stringify({
         errorCode: errCode,
@@ -55,7 +55,7 @@ httpServer.on("request", function(req, res) {
     // Passenden Action suchen
     var parsedURL = url.parse(req.url, true);
     var action = parsedURL.pathname.slice(1);
-    log.http("Action: '" + action + "'");
+    log.http("Action:", action);
     var actionFn = getActions[action];
     if (actionFn) {
         actionFn(req, res, parsedURL.query);
@@ -67,7 +67,7 @@ httpServer.on("request", function(req, res) {
 });
 
 httpServer.on("clientError", function(err) {
-    log.err(err);
+    log.err("HTTP Server Error", err);
 });
 
 var getActions = {
@@ -171,11 +171,11 @@ var lobbyPrototype = {
             group: 1
         };
         this.playerMapPending.set(newPlayer.pid, newPlayer);
-        log.http("New pending player in lobby " + this.lid);
+        log.http("New pending player in lobby:", this.lid);
         // Remove Pending Player after Timeout
         this.pendingTimer = setTimeout(function() {
             this.playerMapPending.delete(newPlayer.pid);
-            log.http("Pending Player removed from Lobby " + this.lid);
+            log.http("Pending player removed from lobby:", this.lid);
         }.bind(this), 5000);
         return newPlayer;
     },
@@ -183,13 +183,13 @@ var lobbyPrototype = {
         this.playerMap.delete(pid);
     },
     getPendingPlayer: function(pid) {
-        return this.playerMapPending.get(validate.parseId(pid));
+        return this.playerMapPending.get(pid);
     },
     verifyPlayer: function(pPlayer) {
         clearTimeout(this.pendingTimer);
         this.playerMap.set(pPlayer.pid, pPlayer);
         this.playerMapPending.delete(pPlayer.pid);
-        log.ws("Verified player in Lobby " + this.lid);
+        log.ws("Verified player in lobby:", this.lid);
         return pPlayer;
     },
     getPlayersArray: function(filterPid) {
@@ -204,7 +204,7 @@ var lobbyPrototype = {
                     isAdmin: this.admin === player
                 });
             }
-        });
+        }, this);
         return players;
     }
 };
@@ -229,32 +229,32 @@ var lobbys = {
         newLobby.playerMapPending = new Map();
         newLobby.playerCounter = 0;
         newLobby.max = 100;
-        var newPlayer = newLobby.addPlayer(adminName);
+        var newAdmin = newLobby.addPlayer(adminName);
 
-        newLobby.mrx = newPlayer;
-        newLobby.admin = newPlayer;
+        newLobby.mrx = newAdmin;
+        newLobby.admin = newAdmin;
         this.lobbyMapPending.set(newLobby.lid, newLobby);
-        log.http("New pending lobby " + newLobby.lid);
+        log.http("New pending lobby:", newLobby.lid);
         // Timeout
         this.pendingTimer = setTimeout(function() {
             this.lobbyMapPending.delete(newLobby.lid);
-            log.http("Pending Lobby removed " + newLobby.lid);
+            log.http("Pending pobby removed:", newLobby.lid);
         }.bind(this), 5000);
 
         return newLobby;
     },
+    getLobby: function(lid) {
+        return this.lobbyMap.get(validate.parseId(lid));
+    },
     getPendingLobby: function(lid) {
-        return this.lobbyMapPending.get(validate.parseId(lid));
+        return this.lobbyMapPending.get(lid);
     },
     verifyLobby: function(pLobby) {
         clearTimeout(this.pendingTimer);
         this.lobbyMap.set(pLobby.lid, pLobby);
         this.lobbyMapPending.delete(pLobby.lid);
-        log.ws("Verified lobby " + pLobby.lid);
+        log.ws("Verified lobby:", pLobby.lid);
         return pLobby;
-    },
-    getLobby: function(lid) {
-        return this.lobbyMap.get(validate.parseId(lid));
     }
 };
 
@@ -265,11 +265,13 @@ var wss = new WebSocketServer({
     path: "/ws",
     verifyClient: function(info) {
         var query = url.parse(info.req.url, true).query;
+        var lid = validate.parseId(query.lid);
+        var pid = validate.parseId(query.pid);
         // Bereits Verifizierte Lobby (Spieler Join)
-        var lobby = lobbys.getLobby(query.lid);
+        var lobby = lobbys.getLobby(lid);
         if (lobby) {
             // Player verifizieren
-            var player = lobby.getPendingPlayer(query.pid);
+            var player = lobby.getPendingPlayer(pid);
             if (player) {
                 lobby.verifyPlayer(player);
                 info.req[reqSymbol] = player;
@@ -279,8 +281,8 @@ var wss = new WebSocketServer({
             }
         } else {
             // Nicht verifizierte Lobby (Admin Join)
-            var pLobby = lobbys.getPendingLobby(query.lid);
-            if (pLobby && pLobby.admin.pid === validate.parseId(query.pid)) {
+            var pLobby = lobbys.getPendingLobby(lid);
+            if (pLobby && pLobby.admin.pid === pid) {
                 // Lobby & Admin verifizieren
                 lobbys.verifyLobby(pLobby).verifyPlayer(pLobby.admin);
                 info.req[reqSymbol] = pLobby.admin;
@@ -294,8 +296,8 @@ var wss = new WebSocketServer({
 });
 
 httpServer.listen(serverPort);
-log.info("HTTP Server running on Port " + serverPort);
-log.ws("WebSocket Server running on Port " + serverPort);
+log.info("HTTP Server running on Port", serverPort);
+log.ws("WebSocket Server running on Port", serverPort);
 
 wss.on("connection", function connection(ws) {
 
@@ -307,14 +309,13 @@ wss.on("connection", function connection(ws) {
         ws.send(message);
     });
 
-    ws.on("error", function(err) {
-        console.log("error", err);
-    });
-
     ws.on("close", function(code) {
-        
+        console.log(code);
     });
 
+    ws.on("error", function(err) {
+        log.err("Websocket Server Error", err);
+    });
 
 });
 
