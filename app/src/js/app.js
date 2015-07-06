@@ -192,13 +192,13 @@ appdata.self.isMrx = false;
 // Lobby Page aufrufen
 // Player Collection erstellen
 
-//appdata.lobby.players = new app.collections.Players(testusers);
+appdata.lobby.players = new app.collections.Players(testusers);
 
 // Player View Rendern
 
-//var $playerListContainer = $(".list");
-//var playersView = new app.views.Players({collection: appdata.lobby.players});
-//$playerListContainer.append(playersView.render().el);
+var $playerListContainer = $("#lobby .playerList");
+var playersView = new app.views.Players({collection: appdata.lobby.players});
+$playerListContainer.append(playersView.render().el);
 
 
 // Updates (create, update, delete)
