@@ -37,6 +37,63 @@ JST.player = _.template('\
 );
 
 
+$("#submitJoin").submit(function(event) {
+    //vor get
+    event.preventDefault();
+    if($(this).find('input[name="gameid"]').val() === "" || $(this).find('input[name="password"]').val()=== ""){
+        console.log("passiert was im if!")
+    }
+    appdata.lobby.id = $(this).find('input[name="gameid"]').val();
+    console.log("passiert was!")
+    //an Host
+    $.getJSON("http://localhost:8080/joinLobby",
+            {
+                id: appdata.lobby.id ,
+                pw: $(this).find('input[name="password"]').val(),
+                name: "user"+Math.floor((Math.random() * 100) + 1)
+            })
+    .done(function(data, textStatus, xhr){
+        appdata.self.id = data.id;
+        //RETURN DATA $( ":mobile-pagecontainer" ).pagecontainer( "change", "confirm.html", { role: "dialog" } );
+        $( ":mobile-pagecontainer" ).pagecontainer( "change", $("#lobby"), { role: "dialog" } );
+    })  
+    .fail(function (xhr, textStatus, errorThrown) {
+        if(xhr.status === 404){
+            $("#submitJoin").find(".joinErrMsg").css({"display": "block"});
+            $("#submitJoin").find(".joinErrMsg").html("Diese Lobby existiert nicht");
+
+//            $("#submitJoin").find(".joinError").removeClass(".joinError");
+//            $("#submitJoin").find(".joinErrMsg").html("Diese Lobby existiert nicht");
+//            $("#submitJoin").find(".joinErrMsg").addClass(".joinError");
+//            
+//            $("#submitJoin").append("<div class='joinError ui-bar ui-bar-a ui-corner-all'>Diese Lobby existiert nicht</div>");
+//            
+        }
+        else if(xhr.status === 401){
+            $("#submitJoin").find(".joinError").remove();
+            $("#submitJoin").append("<p class='joinError ui-field-contain'>Das eingegebene Passwort ist Falsch</p>");
+        }
+        else if(xhr.status === 422){
+            $("#submitJoin").find(".joinError").remove();
+            $("#submitJoin").append("<p class='joinError ui-field-contain'>Der gewählte Name ist ungültig</p>");
+        }
+        else if(xhr.status === 503){
+            $("#submitJoin").find(".joinError").remove();
+            $("#submitJoin").append("<p class='joinError ui-field-contain'>Die Lobby ist voll</p>");
+        }
+        
+        $("#submitJoin").find(".joinErrMsg").removeClass("joinError");
+        setTimeout(function(){
+            $("#submitJoin").find(".joinErrMsg").addClass("joinError");
+        },10);
+
+    });
+    
+
+});
+
+
+
 app.models.Player = Backbone.Model.extend({
 });
 
@@ -284,30 +341,30 @@ function wsevents(ws) {
     };
 }
 
-var lid;
-var ws;
-$("#createLobby").on("click", function() {
-    $.getJSON("http://localhost:8080/createLobby", {name: "adminName", pw: "123"}).done(function(json) {
-        console.log(json);
-        lid = json.lid;
-    });
-});
-
-$("#joinLobby").on("click", function() {
-    $.getJSON("http://localhost:8080/joinLobby", {name: "PlayerName", pw: "123", lid: lid}).done(function(json) {
-        console.log(json);
-    });
-});
-
-$("#ws1").on("click", function() {
-    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=0");
-    wsevents(ws);
-});
-
-$("#ws2").on("click", function() {
-    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=1");
-    wsevents(ws);
-});
+//var lid;
+//var ws;
+//$("#createLobby").on("click", function() {
+//    $.getJSON("http://localhost:8080/createLobby", {name: "adminName", pw: "123"}).done(function(json) {
+//        console.log(json);
+//        lid = json.lid;
+//    });
+//});
+//
+//$("#joinLobby").on("click", function() {
+//    $.getJSON("http://localhost:8080/joinLobby", {name: "PlayerName", pw: "123", lid: lid}).done(function(json) {
+//        console.log(json);
+//    });
+//});
+//
+//$("#ws1").on("click", function() {
+//    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=0");
+//    wsevents(ws);
+//});
+//
+//$("#ws2").on("click", function() {
+//    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=1");
+//    wsevents(ws);
+//});
 
 //var getSocket = function() {
 //    return new Promise(function(resolve, reject) {
