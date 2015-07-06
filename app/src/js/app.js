@@ -38,48 +38,39 @@ JST.player = _.template('\
 
 
 $("#submitJoin").submit(function(event) {
-    //vor get
+
     event.preventDefault();
     if($(this).find('input[name="gameid"]').val() === "" || $(this).find('input[name="password"]').val()=== ""){
         console.log("passiert was im if!")
     }
-    appdata.lobby.id = $(this).find('input[name="gameid"]').val();
-    console.log("passiert was!")
-    //an Host
+    
+    appdata.lobby.lid = $(this).find('input[name="gameid"]').val();
+    console.log("passiert was!");
+
     $.getJSON("http://localhost:8080/joinLobby",
             {
-                id: appdata.lobby.id ,
+                lid: appdata.lobby.lid ,
                 pw: $(this).find('input[name="password"]').val(),
                 name: "user"+Math.floor((Math.random() * 100) + 1)
             })
     .done(function(data, textStatus, xhr){
-        appdata.self.id = data.id;
-        //RETURN DATA $( ":mobile-pagecontainer" ).pagecontainer( "change", "confirm.html", { role: "dialog" } );
+        appdata.self.pid = data.pid;
+
         $( ":mobile-pagecontainer" ).pagecontainer( "change", $("#lobby"), { role: "dialog" } );
     })  
     .fail(function (xhr, textStatus, errorThrown) {
+        $("#submitJoin").find(".joinErrMsg").css({"display": "block"});
         if(xhr.status === 404){
-            $("#submitJoin").find(".joinErrMsg").css({"display": "block"});
             $("#submitJoin").find(".joinErrMsg").html("Diese Lobby existiert nicht");
-
-//            $("#submitJoin").find(".joinError").removeClass(".joinError");
-//            $("#submitJoin").find(".joinErrMsg").html("Diese Lobby existiert nicht");
-//            $("#submitJoin").find(".joinErrMsg").addClass(".joinError");
-//            
-//            $("#submitJoin").append("<div class='joinError ui-bar ui-bar-a ui-corner-all'>Diese Lobby existiert nicht</div>");
-//            
         }
         else if(xhr.status === 401){
-            $("#submitJoin").find(".joinError").remove();
-            $("#submitJoin").append("<p class='joinError ui-field-contain'>Das eingegebene Passwort ist Falsch</p>");
+            $("#submitJoin").find(".joinErrMsg").html("Das eingegebene Passwort ist Falsch");
         }
         else if(xhr.status === 422){
-            $("#submitJoin").find(".joinError").remove();
-            $("#submitJoin").append("<p class='joinError ui-field-contain'>Der gewählte Name ist ungültig</p>");
+            $("#submitJoin").find(".joinErrMsg").html("Der gewählte Name ist ungültig");
         }
         else if(xhr.status === 503){
-            $("#submitJoin").find(".joinError").remove();
-            $("#submitJoin").append("<p class='joinError ui-field-contain'>Die Lobby ist voll</p>");
+            $("#submitJoin").find(".joinErrMsg").html("Die Lobby ist voll");
         }
         
         $("#submitJoin").find(".joinErrMsg").removeClass("joinError");
@@ -92,7 +83,38 @@ $("#submitJoin").submit(function(event) {
 
 });
 
+$("#submitCreate").submit(function(event) {
 
+    event.preventDefault();
+    console.log("createSubmit");
+    if($(this).find('input[name="password"]').val() === "" ){
+        $(".createErrMsg").css({"display": "block"});
+        $(".createErrMsg").html("Passwort eingeben");
+        setTimeout(function(){
+            $(".createErrMsg").addClass("joinError");
+        },10);
+    }else{
+        $(".createErrMsg").css({"display": "none"});
+        
+            $.getJSON("http://localhost:8080/createLobby",
+            {
+                name: "user"+Math.floor((Math.random() * 100) + 1),
+                pw: $(this).find('input[name="password"]').val()
+            })
+            .done(function(json) {
+                console.log(json);
+                appdata.lobby.lid = json.lid;
+                
+                $( ":mobile-pagecontainer" ).pagecontainer( "change", $("#lobby"));
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                $(".createErrMsg").css({"display": "block"});
+                $(".createErrMsg").html(xhr.responseJSON.errorMsg);
+            });
+        
+    }
+    
+});
 
 app.models.Player = Backbone.Model.extend({
 });
