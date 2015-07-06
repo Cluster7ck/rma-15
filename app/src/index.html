@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.css">
         <link rel="stylesheet" href="css/spytheme.css">
-        
+
         <link rel="stylesheet" href="css/jquery.mobile.icons-1.4.5.css">
         <link rel="stylesheet" href="css/style.css">
         <script src="js/vendor/jquery-2.1.4.js"></script>
@@ -22,11 +22,23 @@
                 <h1 class="ui-text-mid">Agent Z</h1>
 
                 <div class="ui-top-margin">
-                    <a href="#lobby" class="ui-btn">Neues Spiel</a>
-                    <a href="#joinLobby" data-rel="popup" data-position-to="window" class="ui-btn" data-transition="pop">Spiel beitreten</a>	
+                    <a href="#newLobby" class="ui-btn" data-rel="popup" data-position-to="window" class="ui-btn" data-transition="pop">Neues Spiel</a>
+                    <a href="#joinLobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Spiel beitreten</a>	
                     <a href="#instructions" class="ui-btn">Anleitung</a>
                 </div>
 
+                <div data-role="popup" id="newLobby" data-theme="a" class="ui-corner-all">
+                    <form id="submitCreate">
+                        <div style="padding:10px 20px;">
+                            <h3>Lobby Passwort</h3>
+                            <label for="pw" class="ui-hidden-accessible">Passwort:</label>
+                            <input name="password" id="pw-create" value="" placeholder="Passwort" data-theme="a" type="password">
+                            <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Erstellen</button>
+                            <div class="ui-bar ui-bar-a ui-corner-all createErrMsg" style="display: none"></div>
+                        </div>
+                    </form>
+                </div>
+                
                 <div data-role="popup" id="joinLobby" data-theme="a" class="ui-corner-all">
                     <form id="submitJoin">
                         <div style="padding:10px 20px;">
@@ -34,9 +46,9 @@
                             <label for="un" class="ui-hidden-accessible">Id</label>
                             <input name="gameid" id="un" value="" placeholder="1234" data-theme="a" type="number">
                             <label for="pw" class="ui-hidden-accessible">Passwort:</label>
-                            <input name="password" id="pw" value="" placeholder="Passwort" data-theme="a" type="password">
+                            <input name="password" id="pw-join" value="" placeholder="Passwort" data-theme="a" type="password">
                             <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Beitreten</button>
-                            <div class="ui-bar ui-bar-a ui-corner-all joinErrMsg" ></div>
+                            <div class="ui-bar ui-bar-a ui-corner-all joinErrMsg" style= "display: none" ></div>
                         </div>
                     </form>
                 </div>
@@ -47,27 +59,28 @@
 
         <div data-role="page" id="lobby" data-theme="a">
 
-            <div role="main" class="ui-content">
-                <div class="ui-head-wrapper">
-                    <div class="ui-nodisc-icon" style="float:right"><!-- Classes added to the wrapper -->
-                        <a href="#lobbysettings" class="ui-btn ui-icon-gear ui-btn-icon-notext ui-btn-inline">Einstellungen</a>
-                    </div>
-                    <h2>Neue Lobby</h2>
-                </div>
+            <div data-role="header">
+                <h1>Lobby</h1>
+                <a href="#lobbysettings" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-icon-gear ui-btn-icon-notext">Einstellungen</a>
+            </div>
 
+            <div role="main" class="ui-content">
 
                 <div class="playerList"></div>
 
-                <a href="#landing" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Lobby schliessen</a>
+                <a href="#landing" data-transition="slidefade" class="ui-btn">Lobby schliessen</a>
             </div><!-- /content -->
 
         </div><!-- /page New Game -->
 
 
         <div data-role="page" id="lobbysettings" data-theme="a">
+            
+            <div data-role="header">
+                <h1>Lobby Einstellungen</h1>
+            </div>
+            
             <div role="main" class="ui-content">
-                <h1 class="ui-text-mid">Einstellungen</h1>
-
                 <form>
                     <ul data-role="listview" data-inset="true">
                         <li class="ui-field-contain">
@@ -98,23 +111,18 @@
                                 <option value="express">Matrix</option>
                             </select>
                         </li>
-                        <li class="ui-body ui-body-b">
+                        <li>
                             <div class="ui-grid-a">
                                 <div class="ui-block-a">
-                                    <div class="button-wrap">
-                                        <button type="submit" class="ui-btn">Abrechen</button>
-                                    </div>
+                                    <a href="#lobby" class="ui-btn">Abrechen</a>
                                 </div>
                                 <div class="ui-block-b">
-                                    <div class="button-wrap">
-                                        <button type="submit" class="ui-btn">Speichern</button>
-                                    </div>
+                                    <button type="submit" class="ui-btn">Speichern</button>
                                 </div>
                             </div>
                         </li>
                     </ul>
                 </form>
-                <a href="#landing" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zurück zur Lobby</a>
 
             </div>
         </div><!-- /page Lobby Settings-->
@@ -126,10 +134,10 @@
             </div><!-- /header -->
 
             <div role="main" class="ui-content">
-               
+
             </div><!-- /content -->
 
-            
+
             <a href="#landing" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zurück</a>
         </div><!-- /page Find Game-->
 
@@ -141,12 +149,12 @@
 
             <div role="main" class="ui-content">
                 <p>
-                   Suchen sie sich ein paar Mitstreiter und begeben Sie sich auf die Suche nach Agent Z.
-                   Bei diesem Versteckspiel Arbeiten sie alleine oder in Teams um Agent Z zu fangen. 
+                    Suchen sie sich ein paar Mitstreiter und begeben Sie sich auf die Suche nach Agent Z.
+                    Bei diesem Versteckspiel Arbeiten sie alleine oder in Teams um Agent Z zu fangen. 
                 </p>
                 <a href="#landing" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zurück</a>
             </div><!-- /content -->
-            
+
         </div><!-- /page Instructions -->
 
         <script src="js/app.js"></script>
