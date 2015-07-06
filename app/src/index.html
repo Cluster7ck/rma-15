@@ -2,191 +2,150 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Page Title</title>
+        <title>Mr. Z</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="css/spytheme.css">
-        <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.css">
+
         <link rel="stylesheet" href="css/jquery.mobile.icons-1.4.5.css">
+        <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.css">
+        <link rel="stylesheet" href="css/spytheme.css">
+        <link rel="stylesheet" href="css/style.css">
+
         <script src="js/vendor/jquery-2.1.4.js"></script>
         <script src="js/vendor/jquery.mobile-1.4.5.js"></script>
+        <script src="js/vendor/underscore.js"></script>
+        <script src="js/vendor/backbone.js"></script>
+        <!--<script src="https://maps.googleapis.com/maps/api/js?v=3"></script>-->
     </head>
     <body>
 
-        <div data-role="page" id="landing">
-            <div role="main" class="ui-content ui-top-margin">
-
-                <h1 class="ui-text-mid">Agent Z</h1>
-
-                <div class="ui-top-margin">
-                    <a href="#lobby" class="ui-btn">Neues Spiel</a>
-                    <a href="#joinLobby" data-rel="popup" data-position-to="window" class="ui-btn" data-transition="pop">Spiel beitreten</a>	
-                    <a href="#instructions" class="ui-btn">Anleitung</a>
-                </div>
-
-                <div data-role="popup" id="joinLobby" data-theme="a" class="ui-corner-all">
-                    <form id="submitJoin">
-                        <div style="padding:10px 20px;">
-                            <h3>Lobby Id &amp; Passwort</h3>
-                            <label for="un" class="ui-hidden-accessible">Id</label>
-                            <input name="gameid" id="un" value="" placeholder="1234" data-theme="a" type="text">
-                            <label for="pw" class="ui-hidden-accessible">Passwort:</label>
-                            <input name="password" id="pw" value="" placeholder="Passwort" data-theme="a" type="password">
-                            <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Beitreten</button>
-                        </div>
-                    </form>
-                </div>
-
-            </div><!-- /content -->
-        </div><!-- /page Start Page -->
-
-
-        <div data-role="page" id="lobby" data-theme="a">
+        <div data-role="page" id="page-landing">
 
             <div role="main" class="ui-content">
-                <div class="ui-head-wrapper">
-                    <div class="ui-nodisc-icon" style="float:right"><!-- Classes added to the wrapper -->
-                        <a href="#lobbysettings" class="ui-btn ui-icon-gear ui-btn-icon-notext ui-btn-inline">Einstellungen</a>
+
+                <h1>Mr. Z</h1>
+
+                <div>
+                    <a href="#popup-create-lobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Neue Lobby</a>
+                    <a href="#popup-join-lobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Lobby beitreten</a>	
+                    <a href="#page-instructions" class="ui-btn">Anleitung</a>
+                </div>
+
+                <div data-role="popup" id="popup-create-lobby">
+                    <div class="ui-body">
+                        <form id="from-create-lobby">
+                            <h3>Lobby Passwort</h3>
+                            <label for="input-create-lobby-pw" class="ui-hidden-accessible">Passwort:</label>
+                            <input name="pw" id="input-create-lobby-pw" placeholder="Passwort" type="password" required>
+                            <button type="submit" class="ui-btn ui-btn-icon-left ui-icon-check">Erstellen</button>
+                            <div class="ui-bar err-el">Fehler beim Erstellen</div>
+                        </form>
                     </div>
-                    <h2>Neue Lobby</h2>
                 </div>
 
-
-                <div class="playerlist">
-
+                <div data-role="popup" id="popup-join-lobby">
+                    <div class="ui-body">
+                        <form id="form-join-lobby">
+                            <h3>Lobby Id &amp; Passwort</h3>
+                            <label for="input-join-lobby-lid" class="ui-hidden-accessible">ID:</label>
+                            <input name="lid" id="input-join-lobby-lid" placeholder="ID" type="number">
+                            <label for="input-join-lobby-pw" class="ui-hidden-accessible">Passwort:</label>
+                            <input name="pw" id="input-join-lobby-pw" placeholder="Passwort" type="password">
+                            <button type="submit" class="ui-btn ui-btn-icon-left ui-icon-check">Beitreten</button>
+                            <div class="ui-bar err-el">Fehler beim Login</div>
+                        </form>
+                    </div>
                 </div>
 
-                <a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Lobby schliessen</a>
+            </div><!-- /content -->
+        </div><!-- /page Landing -->
+
+
+        <div data-role="page" id="page-lobby">
+
+            <div data-role="header">
+                <h1>Lobby</h1>
+                <a href="#page-lobbysettings" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-icon-gear ui-btn-icon-notext">Einstellungen</a>
+            </div>
+
+            <div role="main" class="ui-content">
+                <div class="player-self"></div>
+                <div class="player-list-container"></div>
+
+                <a href="#page-landing" data-transition="slidefade" class="ui-btn">Lobby schliessen</a>
             </div><!-- /content -->
 
-        </div><!-- /page New Game -->
+        </div><!-- /page Lobby -->
 
 
-        <div data-role="page" id="lobbysettings" data-theme="a">
+        <div data-role="page" id="page-lobbysettings">
+
+            <div data-role="header">
+                <h1>Lobby Einstellungen</h1>
+            </div>
+
             <div role="main" class="ui-content">
-                <h1 class="ui-text-mid">Einstellungen</h1>
-
-                <form>
+                <form id="form-lobbysettings">
                     <ul data-role="listview" data-inset="true">
                         <li class="ui-field-contain">
-                            <label for="slider2">Radius in m:</label>
-                            <input type="range" name="slider2" id="slider2" value="2000" min="300" max="5000" data-highlight="true">
+                            <label for="input-lobbysettings-radius">Radius in m:</label>
+                            <input type="range" name="slider1" id="input-lobbysettings-radius" value="2000" min="300" max="5000" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Zeitlimit in min:</label>
-                            <input type="range" name="slider2" id="slider2" value="30" min="5" max="120" data-highlight="true">
+                            <label for="input-lobbysettings-timelimit">Zeitlimit in min:</label>
+                            <input type="range" name="slider2" id="input-lobbysettings-timelimit" value="30" min="5" max="120" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Positionsupdate in min:</label>
-                            <input type="range" name="slider2" id="slider2" value="3" min="1" max="10" data-highlight="true">
+                            <label for="input-lobbysettings-updatetime">Positionsupdate in min:</label>
+                            <input type="range" name="slider3" id="input-lobbysettings-updatetime" value="3" min="1" max="10" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Versteckzeit in min:</label>
-                            <input type="range" name="slider2" id="slider2" value="3" min="1" max="15" data-highlight="true">
+                            <label for="input-lobbysettings-hidingtime">Versteckzeit in min:</label>
+                            <input type="range" name="slider4" id="input-lobbysettings-hidingtime" value="3" min="1" max="15" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Max-Timeout in sec:</label>
-                            <input type="range" name="slider2" id="slider2" value="30" min="10" max="60" data-highlight="true">
+                            <label for="input-lobbysettings-timeout">Max-Timeout in sec:</label>
+                            <input type="range" name="slider5" id="input-lobbysettings-timeout" value="30" min="10" max="60" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="select-choice-1" class="select">Karten Stil:</label>
-                            <select name="select-choice-1" id="select-choice-1">
+                            <label for="input-lobbysettings-maptype" class="select">Karten Stil:</label>
+                            <select name="maptype" id="input-lobbysettings-maptype">
                                 <option value="standard">Standard</option>
-                                <option value="rush">Blueprint</option>
-                                <option value="express">Matrix</option>
+                                <option value="blue">Blueprint</option>
+                                <option value="matrix">Matrix</option>
                             </select>
                         </li>
-                        <li class="ui-body ui-body-b">
+                        <li>
                             <div class="ui-grid-a">
                                 <div class="ui-block-a">
-                                    <div class="button-wrap">
-                                        <button type="submit" class="ui-btn">Abrechen</button>
-                                    </div>
+                                    <a href="#page-lobby" class="ui-btn">Abrechen</a>
                                 </div>
                                 <div class="ui-block-b">
-                                    <div class="button-wrap">
-                                        <button type="submit" class="ui-btn">Speichern</button>
-                                    </div>
+                                    <button type="submit" class="ui-btn">Speichern</button>
                                 </div>
                             </div>
                         </li>
                     </ul>
                 </form>
-                <a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zurück zur Lobby</a>
 
-            </div>
+            </div><!-- /content -->
         </div><!-- /page Lobby Settings-->
 
-        <div data-role="page" id="findgame">
-
-            <div data-role="header" data-theme="b">
-                <h1>Projekte</h1>
-            </div><!-- /header -->
-
-            <div role="main" class="ui-content">
-                <h2>Job Ausschreibung</h2>
-                <p>Werden sie chronisch &uuml;bersehen? Haben sie &uuml;berdurchschnittlich gute Ohren? Dann habe ich den richtigen Job f&uuml;r sie! Melden sie sich noch Heute bei mir und treten sie <strong>"Varys Spinnen"</strong> bei. F&uuml;llen sie einfach das untenstehende Formular aus und ein Mitarbeiter wird sich in k&uuml;rze bei ihnen melden.</p>
-            </div><!-- /content -->
-
-            <form>
-                <ul data-role="listview" data-inset="true">
-                    <li class="ui-field-contain">
-                        <label for="name2">Voller Name:</label>
-                        <input type="text" name="name2" id="name2" value="" data-clear-btn="true">
-                    </li>
-                    <li class="ui-field-contain">
-                        <label for="select-choice-1" class="select">Status:</label>
-                        <select name="select-choice-1" id="select-choice-1">
-                            <option value="standard">Bauer</option>
-                            <option value="rush">S&ouml;ldner</option>
-                            <option value="express">Lord</option>
-                        </select>
-                    </li>
-                    <li class="ui-field-contain">
-                        <label for="textarea2">K&ouml;nigreich:</label>
-                        <textarea cols="40" rows="8" name="textarea2" id="textarea2"></textarea>
-                    </li>
-                    <li class="ui-field-contain">
-                        <label for="textarea3">Stadt:</label>
-                        <textarea cols="40" rows="8" name="textarea3" id="textarea2"></textarea>
-                    </li>
-                    <li class="ui-field-contain">
-                        <label for="textarea4">Strasse:</label>
-                        <textarea cols="40" rows="8" name="textarea4" id="textarea2"></textarea>
-                    </li>
-                    <li class="ui-field-contain">
-                        <label for="slider2">Schleich-Level:</label>
-                        <input type="range" name="slider2" id="slider2" value="0" min="0" max="100" data-highlight="true">
-                    </li>
-                    <li class="ui-body ui-body-b">
-                        <fieldset class="ui-grid-a">
-                            <div class="ui-block-a"><button type="submit" class="ui-btn ui-corner-all ui-btn-a">Abbrechen</button></div>
-                            <div class="ui-block-b"><button type="submit" class="ui-btn ui-corner-all ui-btn-a">Absenden</button></div>
-                        </fieldset>
-                    </li>
-                </ul>
-            </form>
-            <a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zur&uuml;ck</a>
-        </div><!-- /page Find Game-->
-
-        <div data-role="page" id="instructions" data-theme="a">
+        <div data-role="page" id="page-instructions">
 
             <div data-role="header">
-                <h1>Agent Z Anleitung</h1>
-            </div><!-- /header -->
+                <h1>Mr. Z Anleitung</h1>
+            </div>
 
             <div role="main" class="ui-content">
                 <p>
-                   Suchen sie sich ein paar Mitstreiter und begeben Sie sich auf die Suche nach Agent Z.
-                   Bei diesem Versteckspiel Arbeiten sie alleine oder in Teams um Agent Z zu fangen. 
+                    Suchen sie sich ein paar Mitstreiter und begeben Sie sich auf die Suche nach Mr. Z.
+                    Bei diesem Versteckspiel Arbeiten sie alleine oder in Teams um Mr. Z zu fangen. 
                 </p>
-                <a href="#one" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zur&uuml;ck</a>
+                <a href="#page-landing" data-transition="slidefade" class="ui-btn">Zurück</a>
             </div><!-- /content -->
 
-            <div data-role="footer">
-                <h4>Sneaky Spider</h4>
-            </div><!-- /footer -->
         </div><!-- /page Instructions -->
 
-        <script src="js/buttons.js"></script>
+        <script src="js/app.js"></script>
     </body>
 </html>

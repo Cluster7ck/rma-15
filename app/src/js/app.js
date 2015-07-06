@@ -1,17 +1,24 @@
+// Statische Daten
 var app = {
     models: {},
     collections: {},
     views: {},
     settings: {
-        serverHost: "localhost",
-        serverPort: "8080"
-    }
+        httpServer: "http://localhost:8080",
+        websocketServer: "ws://localhost:8080"
+    },
+    //TODO more groups?
+    groupColors: {
+        1: "red",
+        2: "green",
+        3: "blue",
+        4: "cyan",
+        5: "magenta",
+        6: "yellow"
+    },
+    JST: {}
 };
-//TODO fill
-app.groupColors = {
-    1: "red",
-    2: "green"
-};
+// Daten, welche zur Laufzeit erstellt werden
 var appdata = {
     // Settings für aktuelle Lobby
     lobby: {
@@ -22,8 +29,8 @@ var appdata = {
 };
 // TODO save / read from localstorage
 appdata.self.name = "Noname";
-JST = {};
-JST.player = _.template('\
+
+app.JST.player = _.template('\
         <div class="player-name"><%- data.name %></div>\
         <div class="player-info">\
             <% if (data.mrx) { %>\
@@ -36,10 +43,70 @@ JST.player = _.template('\
         , {variable: "data"}
 );
 
+// Join & Create Lobby
+app.createLobby = function(pw) {
+    return $.getJSON(app.settings.httpServer + "/createLobby", {
+        name: appdata.self.name,
+        pw: pw
+    });
+}
+app.joinLobby = function(lid, pw) {
+    return $.getJSON(app.settings.httpServer + "/joinLobby", {
+        name: appdata.self.name,
+        lid: lid,
+        pw: pw
+    });
+}
+
+var $pageLobby = $("#page-lobby");
+
+$("#from-create-lobby").submit(function(event) {
+    event.preventDefault();
+    var $errEl = $("#from-create-lobby .err-el");
+    var pw = $("#input-create-lobby-pw").val();
+
+    app.createLobby(pw).done(function(json) {
+        appdata.lobby.lid = json.lid;
+        appdata.self.pid = json.pid;
+        appdata.self.isAdmin = true;
+        appdata.self.isMrx = true;
+        // TODO Lobby setup
+        $(":mobile-pagecontainer").pagecontainer("change", $pageLobby);
+    }).fail(function(xhr, textStatus, errorThrown) {
+        $errEl.html(xhr.responseJSON.errorMsg || "Fehler bei Netzwerkanfrage");
+        $errEl.removeClass("show-err");
+        setTimeout(function() {
+            $errEl.addClass("show-err");
+        }, 0);
+    });
+
+});
+
+$("#form-join-lobby").submit(function(event) {
+    event.preventDefault();
+    var $errEl = $("#from-join-lobby .err-el");
+    var lid = $("#input-join-lobby-lid").val();
+    var pw = $("#input-join-lobby-lid").val();
+
+    app.joinLobby(lid, pw).done(function(data) {
+        appdata.lobby.lid = lid;
+        appdata.self.pid = data.pid;
+        appdata.self.isAdmin = false;
+        appdata.self.isMrx = false;
+
+        $(":mobile-pagecontainer").pagecontainer("change", $pageLobby);
+    }).fail(function(xhr, textStatus, errorThrown) {
+        $errEl.html(xhr.responseJSON.errorMsg || "Fehler bei Netzwerkanfrage");
+        $errEl.removeClass("show-err");
+        setTimeout(function() {
+            $errEl.addClass("show-err");
+        }, 0);
+    });
+
+});
 
 app.models.Player = Backbone.Model.extend({
 });
-
 
 app.collections.Players = Backbone.Collection.extend({
     model: app.models.Player
@@ -55,7 +122,7 @@ app.views.Player = Backbone.View.extend({
         this.listenTo(this.model, "remove", this.remove);
     },
     render: function() {
-        this.$el.html(JST.player(this.model.attributes));
+        this.$el.html(app.JST.player(this.model.attributes));
         this.$el.toggleClass("player-mrx", this.model.get("mrx"));
         this.$el.toggleClass("player-admin", this.model.get("admin"));
 
@@ -80,7 +147,7 @@ app.views.PlayerSettings = Backbone.View.extend({
         "click .player-group": "changeGroup"
     },
     render: function() {
-        this.$el.html(JST.player(this.model.attributes));
+        this.$el.html(app.JST.player(this.model.attributes));
         // Klasse anpassen
         this.$el.toggleClass("player-mrx", this.model.get("mrx"));
         return this;
@@ -119,8 +186,7 @@ app.views.Players = Backbone.View.extend({
         var playerView = new view({model: player});
         //playerView.listenTo(this, "close", playerView.stopListening);
         this.$el.append(playerView.render().el);
-    },
-    close: function() {
+    }, close: function() {
         //Feuer remove event auf alle Player
         this.collection.each(function(player) {
             player.trigger("remove");
@@ -136,13 +202,11 @@ var testusers = [
         group: 1,
         mrx: false,
         admin: false
-    },
-    {
+    }, {
         id: 124,
         name: "Ravensburger Anwalt für Namensrechte",
         group: 2,
-        mrx: false,
-        admin: false
+        mrx: false, admin: false
     },
     {
         id: 125,
@@ -159,22 +223,13 @@ var testusers = [
         admin: false
     }
 ];
-
 // ---> Startpage
 // ---> Einstellungen
-
 
 // ---> Erstellen einer Lobby
 // sende anfrage
 // sende name
 // 
-// Vom server:
-appdata.lobby.id = 12345;
-
-
-appdata.self.id = 122;
-appdata.self.isAdmin = true;
-appdata.self.isMrx = true;
 
 
 // ----> Betreten der Lobby
@@ -182,9 +237,6 @@ appdata.self.isMrx = true;
 // sende lobby id
 // sende name
 // Bestätigung vom Server
-appdata.self.id = 122;
-appdata.self.isAdmin = false;
-appdata.self.isMrx = false;
 // TODO update lobby settings
 // appdata.lobby ...
 
@@ -192,18 +244,16 @@ appdata.self.isMrx = false;
 // Lobby Page aufrufen
 // Player Collection erstellen
 
-//appdata.lobby.players = new app.collections.Players(testusers);
+appdata.lobby.players = new app.collections.Players(testusers);
 
 // Player View Rendern
 
-//var $playerListContainer = $(".list");
-//var playersView = new app.views.Players({collection: appdata.lobby.players});
-//$playerListContainer.append(playersView.render().el);
-
+var $playerListContainer = $("#lobby .playerList");
+var playersView = new app.views.Players({collection: appdata.lobby.players});
+$playerListContainer.append(playersView.render().el);
 
 // Updates (create, update, delete)
-// 
-//appdata.players.set({
+//  //appdata.players.set({
 //    id: 123,
 //    name: "foo",
 //    group: 5,
@@ -266,48 +316,48 @@ appdata.self.isMrx = false;
 
 //var ws = new WebSocket("ws://" + app.settings.serverHost + ":" + app.settings.serverPort + "/ws?lid=1");
 
-function wsevents(ws) {
-    ws.onopen = function(e) {
-        console.log(e);
-    };
+//function wsevents(ws) {
+//    ws.onopen = function(e) {
+//        console.log(e);
+//    };
+//
+//    ws.onmessage = function(e) {
+//        console.log(e);
+//    };
+//
+//    ws.onclose = function(e) {
+//        console.log(e);
+//    };
+//
+//    ws.onerror = function(e) {
+//        console.log(e);
+//    };
+//}
 
-    ws.onmessage = function(e) {
-        console.log(e);
-    };
-
-    ws.onclose = function(e) {
-        console.log(e);
-    };
-
-    ws.onerror = function(e) {
-        console.log(e);
-    };
-}
-
-var lid;
-var ws;
-$("#createLobby").on("click", function() {
-    $.getJSON("http://localhost:8080/createLobby", {name: "adminName", pw: "123"}).done(function(json) {
-        console.log(json);
-        lid = json.lid;
-    });
-});
-
-$("#joinLobby").on("click", function() {
-    $.getJSON("http://localhost:8080/joinLobby", {name: "PlayerName", pw: "123", lid: lid}).done(function(json) {
-        console.log(json);
-    });
-});
-
-$("#ws1").on("click", function() {
-    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=0");
-    wsevents(ws);
-});
-
-$("#ws2").on("click", function() {
-    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=1");
-    wsevents(ws);
-});
+//var lid;
+//var ws;
+//$("#createLobby").on("click", function() {
+//    $.getJSON("http://localhost:8080/createLobby", {name: "adminName", pw: "123"}).done(function(json) {
+//        console.log(json);
+//        lid = json.lid;
+//    });
+//});
+//
+//$("#joinLobby").on("click", function() {
+//    $.getJSON("http://localhost:8080/joinLobby", {name: "PlayerName", pw: "123", lid: lid}).done(function(json) {
+//        console.log(json);
+//    });
+//});
+//
+//$("#ws1").on("click", function() {
+//    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=0");
+//    wsevents(ws);
+//});
+//
+//$("#ws2").on("click", function() {
+//    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=1");
+//    wsevents(ws);
+//});
 
 //var getSocket = function() {
 //    return new Promise(function(resolve, reject) {

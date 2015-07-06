@@ -310,7 +310,7 @@ wss.on("connection", function connection(ws) {
     });
 
     ws.on("close", function(code) {
-        console.log(code);
+        console.log("close", code);
     });
 
     ws.on("error", function(err) {
