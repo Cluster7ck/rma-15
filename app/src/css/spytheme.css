@@ -402,12 +402,12 @@ button[disabled],
 .ui-noboxshadow .ui-btn:focus,
 .ui-noboxshadow .ui-focus {
     outline-width: 1px;
-    outline-style: auto;
+    outline-style: auto;    
 }*/
 
 .joinError{
     display: none;
     transition: background-color 3s;
     -webkit-transition: background-color 3s;
-    background-color: #FF4D4D;
+    background-color: #de4c4c;
 }

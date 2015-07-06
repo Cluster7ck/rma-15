@@ -22,11 +22,23 @@
                 <h1 class="ui-text-mid">Agent Z</h1>
 
                 <div class="ui-top-margin">
-                    <a href="#lobby" class="ui-btn">Neues Spiel</a>
-                    <a href="#joinLobby" data-rel="popup" data-position-to="window" class="ui-btn" data-transition="pop">Spiel beitreten</a>	
+                    <a href="#newLobby" class="ui-btn" data-rel="popup" data-position-to="window" class="ui-btn" data-transition="pop">Neues Spiel</a>
+                    <a href="#joinLobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Spiel beitreten</a>	
                     <a href="#instructions" class="ui-btn">Anleitung</a>
                 </div>
 
+                <div data-role="popup" id="newLobby" data-theme="a" class="ui-corner-all">
+                    <form id="submitCreate">
+                        <div style="padding:10px 20px;">
+                            <h3>Lobby Passwort</h3>
+                            <label for="pw" class="ui-hidden-accessible">Passwort:</label>
+                            <input name="password" id="pw-create" value="" placeholder="Passwort" data-theme="a" type="password">
+                            <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Erstellen</button>
+                            <div class="ui-bar ui-bar-a ui-corner-all createErrMsg" style="display: none"></div>
+                        </div>
+                    </form>
+                </div>
+                
                 <div data-role="popup" id="joinLobby" data-theme="a" class="ui-corner-all">
                     <form id="submitJoin">
                         <div style="padding:10px 20px;">
@@ -34,12 +46,15 @@
                             <label for="un" class="ui-hidden-accessible">Id</label>
                             <input name="gameid" id="un" value="" placeholder="1234" data-theme="a" type="number">
                             <label for="pw" class="ui-hidden-accessible">Passwort:</label>
-                            <input name="password" id="pw" value="" placeholder="Passwort" data-theme="a" type="password">
+                            <input name="password" id="pw-join" value="" placeholder="Passwort" data-theme="a" type="password">
                             <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Beitreten</button>
-                            <div class="ui-bar ui-bar-a ui-corner-all joinErrMsg" ></div>
+                            <div class="ui-bar ui-bar-a ui-corner-all joinErrMsg" style= "display: none" ></div>
                         </div>
                     </form>
                 </div>
+                
+
+                
 
             </div><!-- /content -->
         </div><!-- /page Start Page -->
