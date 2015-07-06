@@ -47,25 +47,13 @@
     background-color: white;
 }
 
-.player-group[data-group="1"] {
-    background-color: green;
-}
-.player-group[data-group="2"] {
-    background-color: red;
-}
-.player-group[data-group="3"] {
-    background-color: blue;
-}
-.player-group[data-group="4"] {
-    background-color: yellow;
-}
-.player-group[data-group="5"] {
-    background-color: magenta;
+.err-el {
+    opacity: 0;
+    background-color: #DE4C4C;
 }
 
-
-.joinError {
-    transition: background-color 3s;
-    -webkit-transition: background-color 3s;
-    background-color: #de4c4c;
+.err-el.show-err {
+    opacity: 1;
+    transition: opacity 2s;
+    -webkit-transition: opacity 2s;
 }

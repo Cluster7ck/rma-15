@@ -105,11 +105,11 @@ label.ui-btn {
     border-radius: 1em;
 }
 /* Radius clip workaround for cleaning up corner trapping */
-.ui-btn-corner-all,
+/*.ui-btn-corner-all,
 .ui-corner-all {
     -webkit-background-clip: padding;
     background-clip: padding-box;
-}
+}*/
 /* Popup arrow */
 /*.ui-popup.ui-corner-all > .ui-popup-arrow-guide {
     left: 0.1em;

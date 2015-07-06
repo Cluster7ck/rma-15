@@ -4,12 +4,12 @@
         <meta charset="utf-8">
         <title>Mr. Z</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        
+
         <link rel="stylesheet" href="css/jquery.mobile.icons-1.4.5.css">
         <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.css">
         <link rel="stylesheet" href="css/spytheme.css">
         <link rel="stylesheet" href="css/style.css">
-        
+
         <script src="js/vendor/jquery-2.1.4.js"></script>
         <script src="js/vendor/jquery.mobile-1.4.5.js"></script>
         <script src="js/vendor/underscore.js"></script>
@@ -18,109 +18,106 @@
     </head>
     <body>
 
-        <div data-role="page" id="landing">
-            
-            <div role="main" class="ui-content ui-top-margin">
+        <div data-role="page" id="page-landing">
 
-                <h1 class="ui-text-mid">Mr. Z</h1>
+            <div role="main" class="ui-content">
 
-                <div class="ui-top-margin">
-                    <a href="#newLobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Neue Lobby</a>
-                    <a href="#joinLobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Lobby beitreten</a>	
-                    <a href="#instructions" class="ui-btn">Anleitung</a>
+                <h1>Mr. Z</h1>
+
+                <div>
+                    <a href="#popup-create-lobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Neue Lobby</a>
+                    <a href="#popup-join-lobby" class="ui-btn" data-rel="popup" data-position-to="window" data-transition="pop">Lobby beitreten</a>	
+                    <a href="#page-instructions" class="ui-btn">Anleitung</a>
                 </div>
 
-                <div data-role="popup" id="newLobby" data-theme="a" class="ui-corner-all">
-                    <form id="submitCreate">
-                        <div class="ui-body">
+                <div data-role="popup" id="popup-create-lobby">
+                    <div class="ui-body">
+                        <form id="from-create-lobby">
                             <h3>Lobby Passwort</h3>
-                            <label for="pw" class="ui-hidden-accessible">Passwort:</label>
-                            <input name="password" id="pw-create" value="" placeholder="Passwort" data-theme="a" type="password">
+                            <label for="input-create-lobby-pw" class="ui-hidden-accessible">Passwort:</label>
+                            <input name="pw" id="input-create-lobby-pw" placeholder="Passwort" type="password" required>
                             <button type="submit" class="ui-btn ui-btn-icon-left ui-icon-check">Erstellen</button>
-                            <div class="ui-bar createErrMsg" style="display: none"></div>
-                        </div>
-                    </form>
+                            <div class="ui-bar err-el">Fehler beim Erstellen</div>
+                        </form>
+                    </div>
                 </div>
-                
-                <div data-role="popup" id="joinLobby" data-theme="a" class="ui-corner-all">
-                    <form id="submitJoin">
-                        <div class="ui-body">
-                            <h3>Lobby Id &amp; Passwort</h3>
-                            <label for="un" class="ui-hidden-accessible">Id</label>
-                            <input name="gameid" id="un" value="" placeholder="1234" data-theme="a" type="number">
-                            <label for="pw" class="ui-hidden-accessible">Passwort:</label>
-                            <input name="password" id="pw-join" value="" placeholder="Passwort" data-theme="a" type="password">
-                            <button type="submit" class="ui-btn ui-btn-icon-left ui-icon-check">Beitreten</button>
-                            <div class="ui-bar joinErrMsg" style= "display: none" ></div>
-                        </div>
-                    </form>
-                </div>
-                
 
-                
+                <div data-role="popup" id="popup-join-lobby">
+                    <div class="ui-body">
+                        <form id="form-join-lobby">
+                            <h3>Lobby Id &amp; Passwort</h3>
+                            <label for="input-join-lobby-lid" class="ui-hidden-accessible">ID:</label>
+                            <input name="lid" id="input-join-lobby-lid" placeholder="ID" type="number">
+                            <label for="input-join-lobby-pw" class="ui-hidden-accessible">Passwort:</label>
+                            <input name="pw" id="input-join-lobby-pw" placeholder="Passwort" type="password">
+                            <button type="submit" class="ui-btn ui-btn-icon-left ui-icon-check">Beitreten</button>
+                            <div class="ui-bar err-el">Fehler beim Login</div>
+                        </form>
+                    </div>
+                </div>
 
             </div><!-- /content -->
-        </div><!-- /page Start Page -->
+        </div><!-- /page Landing -->
 
 
-        <div data-role="page" id="lobby">
+        <div data-role="page" id="page-lobby">
 
             <div data-role="header">
                 <h1>Lobby</h1>
-                <a href="#lobbysettings" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-icon-gear ui-btn-icon-notext">Einstellungen</a>
+                <a href="#page-lobbysettings" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-icon-gear ui-btn-icon-notext">Einstellungen</a>
             </div>
 
             <div role="main" class="ui-content">
+                <div class="player-self"></div>
+                <div class="player-list-container"></div>
 
-                <div class="playerList"></div>
-
-                <a href="#landing" data-transition="slidefade" class="ui-btn">Lobby schliessen</a>
+                <a href="#page-landing" data-transition="slidefade" class="ui-btn">Lobby schliessen</a>
             </div><!-- /content -->
 
-        </div><!-- /page New Game -->
+        </div><!-- /page Lobby -->
 
 
-        <div data-role="page" id="lobbysettings" data-theme="a">
-            
+        <div data-role="page" id="page-lobbysettings">
+
             <div data-role="header">
                 <h1>Lobby Einstellungen</h1>
             </div>
-            
+
             <div role="main" class="ui-content">
-                <form>
+                <form id="form-lobbysettings">
                     <ul data-role="listview" data-inset="true">
                         <li class="ui-field-contain">
-                            <label for="slider2">Radius in m:</label>
-                            <input type="range" name="slider2" id="lobby-settings-slider1" value="2000" min="300" max="5000" data-highlight="true">
+                            <label for="input-lobbysettings-radius">Radius in m:</label>
+                            <input type="range" name="slider1" id="input-lobbysettings-radius" value="2000" min="300" max="5000" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Zeitlimit in min:</label>
-                            <input type="range" name="slider2" id="lobby-settings-slider2" value="30" min="5" max="120" data-highlight="true">
+                            <label for="input-lobbysettings-timelimit">Zeitlimit in min:</label>
+                            <input type="range" name="slider2" id="input-lobbysettings-timelimit" value="30" min="5" max="120" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Positionsupdate in min:</label>
-                            <input type="range" name="slider2" id="lobby-settings-slider3" value="3" min="1" max="10" data-highlight="true">
+                            <label for="input-lobbysettings-updatetime">Positionsupdate in min:</label>
+                            <input type="range" name="slider3" id="input-lobbysettings-updatetime" value="3" min="1" max="10" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Versteckzeit in min:</label>
-                            <input type="range" name="slider2" id="lobby-settings-slider4" value="3" min="1" max="15" data-highlight="true">
+                            <label for="input-lobbysettings-hidingtime">Versteckzeit in min:</label>
+                            <input type="range" name="slider4" id="input-lobbysettings-hidingtime" value="3" min="1" max="15" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="slider2">Max-Timeout in sec:</label>
-                            <input type="range" name="slider2" id="lobby-settings-slider5" value="30" min="10" max="60" data-highlight="true">
+                            <label for="input-lobbysettings-timeout">Max-Timeout in sec:</label>
+                            <input type="range" name="slider5" id="input-lobbysettings-timeout" value="30" min="10" max="60" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="select-choice-1" class="select">Karten Stil:</label>
-                            <select name="select-choice-1" id="lobby-settings-choice-1">
+                            <label for="input-lobbysettings-maptype" class="select">Karten Stil:</label>
+                            <select name="maptype" id="input-lobbysettings-maptype">
                                 <option value="standard">Standard</option>
-                                <option value="rush">Blueprint</option>
-                                <option value="express">Matrix</option>
+                                <option value="blue">Blueprint</option>
+                                <option value="matrix">Matrix</option>
                             </select>
                         </li>
                         <li>
                             <div class="ui-grid-a">
                                 <div class="ui-block-a">
-                                    <a href="#lobby" class="ui-btn">Abrechen</a>
+                                    <a href="#page-lobby" class="ui-btn">Abrechen</a>
                                 </div>
                                 <div class="ui-block-b">
                                     <button type="submit" class="ui-btn">Speichern</button>
@@ -130,35 +127,21 @@
                     </ul>
                 </form>
 
-            </div>
+            </div><!-- /content -->
         </div><!-- /page Lobby Settings-->
 
-        <div data-role="page" id="findgame">
-
-            <div data-role="header" data-theme="b">
-                <h1>Projekte</h1>
-            </div><!-- /header -->
-
-            <div role="main" class="ui-content">
-
-            </div><!-- /content -->
-
-
-            <a href="#landing" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zurück</a>
-        </div><!-- /page Find Game-->
-
-        <div data-role="page" id="instructions" data-theme="a">
+        <div data-role="page" id="page-instructions">
 
             <div data-role="header">
-                <h1>Agent Z Anleitung</h1>
-            </div><!-- /header -->
+                <h1>Mr. Z Anleitung</h1>
+            </div>
 
             <div role="main" class="ui-content">
                 <p>
-                    Suchen sie sich ein paar Mitstreiter und begeben Sie sich auf die Suche nach Agent Z.
-                    Bei diesem Versteckspiel Arbeiten sie alleine oder in Teams um Agent Z zu fangen. 
+                    Suchen sie sich ein paar Mitstreiter und begeben Sie sich auf die Suche nach Mr. Z.
+                    Bei diesem Versteckspiel Arbeiten sie alleine oder in Teams um Mr. Z zu fangen. 
                 </p>
-                <a href="#landing" data-transition="slidefade" class="ui-shadow ui-btn ui-corner-all">Zurück</a>
+                <a href="#page-landing" data-transition="slidefade" class="ui-btn">Zurück</a>
             </div><!-- /content -->
 
         </div><!-- /page Instructions -->
