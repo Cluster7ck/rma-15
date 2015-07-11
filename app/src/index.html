@@ -85,48 +85,41 @@
                     <ul data-role="listview" data-inset="true">
                         <li class="ui-field-contain">
                             <label for="input-lobbysettings-radius">Radius in m:</label>
-                            <input type="range" name="slider1" id="input-lobbysettings-radius" value="2000" min="300" max="5000" data-highlight="true">
+                            <input type="range" name="slider1" id="input-lobbysettings-radius" min="300" max="5000" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
                             <label for="input-lobbysettings-timelimit">Zeitlimit in min:</label>
-                            <input type="range" name="slider2" id="input-lobbysettings-timelimit" value="30" min="5" max="120" data-highlight="true">
+                            <input type="range" name="slider2" id="input-lobbysettings-timelimit" min="5" max="120" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
                             <label for="input-lobbysettings-updatetime">Positionsupdate in min:</label>
-                            <input type="range" name="slider3" id="input-lobbysettings-updatetime" value="3" min="1" max="10" data-highlight="true">
+                            <input type="range" name="slider3" id="input-lobbysettings-updatetime" min="1" max="10" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
                             <label for="input-lobbysettings-hidingtime">Versteckzeit in min:</label>
-                            <input type="range" name="slider4" id="input-lobbysettings-hidingtime" value="3" min="1" max="15" data-highlight="true">
+                            <input type="range" name="slider4" id="input-lobbysettings-hidingtime" min="1" max="15" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
                             <label for="input-lobbysettings-timeout">Max-Timeout in sec:</label>
-                            <input type="range" name="slider5" id="input-lobbysettings-timeout" value="30" min="10" max="120" data-highlight="true">
+                            <input type="range" name="slider5" id="input-lobbysettings-timeout" min="10" max="120" data-highlight="true">
                         </li>
                         <li class="ui-field-contain">
-                            <label for="input-lobbysettings-maptype" class="select">Karten Stil:</label>
+                            <label for="input-lobbysettings-maptype">Karten Stil:</label>
                             <select name="maptype" id="input-lobbysettings-maptype">
                                 <option value="0">Standard</option>
                                 <option value="1">Blueprint</option>
                                 <option value="2">Matrix</option>
                             </select>
                         </li>
-                        <li>
-                            <div class="ui-grid-a">
-                                <div class="ui-block-a">
-                                    <a href="#page-lobby" class="ui-btn">Abrechen</a>
-                                </div>
-                                <div class="ui-block-b">
-                                    <button type="submit" class="ui-btn">Speichern</button>
-                                </div>
-                            </div>
-                        </li>
+                        <a href="#page-lobby" class="ui-btn ui-btn-icon-left ui-icon-delete">Abrechen</a>
+                        <button type="submit" class="ui-btn ui-btn-icon-left ui-icon-check">Speichern</button>
+                        <button type="button" id="button-lobbysettings-reset" class="ui-btn ui-btn-icon-left ui-icon-back">Standartwerte</button>
                     </ul>
                 </form>
 
             </div><!-- /content -->
         </div><!-- /page Lobby Settings-->
-        
+
 
         <div data-role="page" id="page-instructions">
 
@@ -143,8 +136,8 @@
             </div><!-- /content -->
 
         </div><!-- /page Instructions -->
-        
-        
+
+
         <div data-role="page" id="page-map">
 
             <!--<div data-role="header">

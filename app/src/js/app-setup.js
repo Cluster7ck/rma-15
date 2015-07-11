@@ -9,6 +9,38 @@ var app = {
         // Zum lokalen Speichen
         nameKey: "USERNAME"
     },
+    lobbySettingsDefaults: {
+        radius: {
+            min: 300,
+            max: 5000,
+            defaultVal: 2000
+        },
+        timelimit: {
+            min: 5,
+            max: 120,
+            defaultVal: 30
+        },
+        updatetime: {
+            min: 1,
+            max: 10,
+            defaultVal: 3
+        },
+        hidingtime: {
+            min: 1,
+            max: 15,
+            defaultVal: 3
+        },
+        timeout: {
+            min: 10,
+            max: 120,
+            defaultVal: 30
+        },
+        maptype: {
+            min: 0,
+            max: 2,
+            defaultVal: 0
+        }
+    },
     //TODO more groups?
     groupColors: {
         0: "transparent",
@@ -23,11 +55,11 @@ var app = {
     JST: {},
     validate: {
         isValidName: function(name) {
-        if (typeof name === "string" && name.length > 0) {
-            return true;
+            if (typeof name === "string" && name.length > 0) {
+                return true;
+            }
+            return false;
         }
-        return false;
-    }
     }
 };
 
@@ -100,7 +132,9 @@ app.joinLobby = function(lid, pw) {
 // Daten, welche zur Laufzeit erstellt werden
 var appdata = {
     // Settings für aktuelle Lobby
-    lobby: {},
+    lobby: {
+        settings: {}
+    },
     // Model für lokalen Spieler
     self: null
 };

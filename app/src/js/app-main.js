@@ -122,6 +122,63 @@ var testusers = [
 appdata.lobby.playersList = new app.collections.PlayersList(testusers);
 
 
+var $pageLobbysettings = $("#page-lobbysettings");
+
+var $lobbysettingsInputs;
+
+$pageLobbysettings.on("pagecreate", function() {
+    // Nach pagecreate auslesen, da die Elemente von jquery mobile verändert werden
+    $lobbysettingsInputs = {
+        radius: $("#input-lobbysettings-radius"),
+        timelimit: $("#input-lobbysettings-timelimit"),
+        updatetime: $("#input-lobbysettings-updatetime"),
+        hidingtime: $("#input-lobbysettings-hidingtime"),
+        timeout: $("#input-lobbysettings-timeout"),
+        maptype: $("#input-lobbysettings-maptype")
+    };
+});
+// Bei jedem Page show die Lobbysettings anzeigen
+$pageLobbysettings.on("pagebeforeshow", function() {
+    _.each($lobbysettingsInputs, function($el, setting) {
+        // Gespeicherter Werte oder default Werte
+        var value = appdata.lobby.settings[setting] || app.lobbySettingsDefaults[setting].defaultVal;
+        $el.val(value);
+        // UI Updaten
+        if ($el.prop("name") === "maptype") {
+            $el.selectmenu("refresh");
+        } else {
+            $el.slider("refresh");
+        }
+    });
+});
+
+$("#form-lobbysettings").submit(function(event) {
+    event.preventDefault();
+
+    _.each($lobbysettingsInputs, function($el, setting) {
+        var value = $el.val();
+        var limits = app.lobbySettingsDefaults[setting];
+        // Wert zwischen min und max eingrenzen
+        appdata.lobby.settings[setting] = Math.min(limits.max, Math.max(limits.min, value));
+        // TODO zum Server senden
+    });
+    $.mobile.pageContainer.pagecontainer("change", $pageLobby);
+});
+
+$("#button-lobbysettings-reset").click(function() {
+    // TODO Confirm
+    _.each($lobbysettingsInputs, function($el, setting) {
+        // Standard Werte eintragen und UI Updaten
+        var value = app.lobbySettingsDefaults[setting].defaultVal;
+        $el.val(value);
+        if ($el.prop("name") === "maptype") {
+            $el.selectmenu("refresh");
+        } else {
+            $el.slider("refresh");
+        }
+    });
+});
+
 
 // Updates (create, update, delete)
 //  //appdata.players.set({
