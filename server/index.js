@@ -73,7 +73,7 @@ httpServer.on("clientError", function(err) {
 var getActions = {
     "joinLobby": function(req, res, query) {
 
-        var lobby = lobbys.getLobby(query.lid);
+        var lobby = lobbys.getLobby(validate.parseId(query.lid));
         if (lobby === undefined) {
             // Not Found
             writeErr(res, 404, ERROR_CODES.LOBBY_NOT_FOUND);
@@ -335,3 +335,13 @@ wss.on("connection", function connection(ws) {
 //var toRadians = function(deg) {
 //    return deg * Math.PI / 180;
 //};
+
+var newL = lobbys.addLobby("1", "AdminName");
+lobbys.verifyLobby(newL).verifyPlayer(newL.admin);
+
+var newP = newL.addPlayer("Player1");
+newL.verifyPlayer(newP);
+newP = newL.addPlayer("Player2");
+newL.verifyPlayer(newP);
+newP = newL.addPlayer("Player3");
+newL.verifyPlayer(newP);

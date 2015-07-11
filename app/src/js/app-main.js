@@ -1,3 +1,4 @@
+//(function() {
 
 // TODO Einstellungspage für Name
 var setUsername = function() {
@@ -10,6 +11,7 @@ var setUsername = function() {
 };
 
 // Lobby create & join
+var $pageLanding = $("#page-landing");
 
 $("#form-create-lobby").submit(function(event) {
     event.preventDefault();
@@ -18,7 +20,7 @@ $("#form-create-lobby").submit(function(event) {
     app.createLobby(pw.val()).then(function() {
         // Bei Erfolg input löschen
         pw.val("");
-        showLobby();
+        openLobby();
     }, function(xhr) {
         showLoginError($("#form-create-lobby .err-el"), xhr);
     });
@@ -28,12 +30,12 @@ $("#form-create-lobby").submit(function(event) {
 $("#form-join-lobby").submit(function(event) {
     event.preventDefault();
     var lid = $("#input-join-lobby-lid");
-    var pw = $("#input-join-lobby-lid");
+    var pw = $("#input-join-lobby-pw");
 
     app.joinLobby(lid.val(), pw.val()).then(function() {
         lid.val("");
         pw.val("");
-        showLobby();
+        openLobby();
     }, function(xhr) {
         showLoginError($("#form-join-lobby .err-el"), xhr);
     });
@@ -53,16 +55,17 @@ var showLoginError = function($errorEl, xhr) {
 };
 
 var $pageLobby = $("#page-lobby");
-var showLobby = function() {
+var openLobby = function() {
     // Setup
+    $pageLobby.toggleClass("player-admin", appdata.self.get("isAdmin"));
     // View für lokalen Spieler
-    $selfContainer = $pageLobby.find(".player-self-container");
+    var $selfContainer = $pageLobby.find(".player-self-container");
     var selfView = new app.views.PlayerSelf({model: appdata.self}, $("#popup-select-group"));
     $selfContainer.append(selfView.render().el);
     appdata.selfView = selfView;
     // View für Liste
-    $listContainer = $pageLobby.find(".player-list-container");
-    $counter = $pageLobby.find(".player-counter");
+    var $listContainer = $pageLobby.find(".player-list-container");
+    var $counter = $pageLobby.find(".player-counter");
     var playersListView = new app.views.PlayersList({collection: appdata.lobby.playersList}, $counter);
     $listContainer.append(playersListView.render().el);
     appdata.playersListView = playersListView;
@@ -71,9 +74,34 @@ var showLobby = function() {
     $.mobile.pageContainer.pagecontainer("change", $pageLobby);
 };
 
+$("#button-lobby-leave").click(function() {
+    // TODO confirm
+    closeLobby();
+});
+$("#button-lobby-close").click(function() {
+    // TODO confirm
+    closeLobby();
+});
+$("#button-lobby-start").click(function() {
+    // TODO confirm
+    // TODO tell server
+    $.mobile.pageContainer.pagecontainer("change", $pageMap);
+});
+
+var closeLobby = function() {
+    appdata.selfView.cleanup();
+    appdata.selfView.remove();
+    delete appdata.selfView;
+    appdata.playersListView.cleanup();
+    appdata.playersListView.remove();
+    delete appdata.playersListView;
+    app.leaveLobby();
+    $.mobile.pageContainer.pagecontainer("change", $pageLanding);
+};
+
 
 // Tests
-$pageInstructions = $("#page-instructions");
+var $pageInstructions = $("#page-instructions");
 $pageInstructions.on(
         "pagebeforechange\
         pagebeforecreate\
@@ -86,36 +114,6 @@ $pageInstructions.on(
         pageshow", function(e) {
             console.log("instruct", e.type);
         });
-
-
-var testusers = [
-    {
-        pid: 123,
-        name: "Username",
-        group: 1,
-        isAdmin: false
-    }, {
-        pid: 124,
-        name: "Admin & Mr z",
-        group: 0,
-        isAdmin: true
-    },
-    {
-        pid: 125,
-        name: "Admin",
-        group: 2,
-        isAdmin: true
-    },
-    {
-        pid: 126,
-        name: "mr z",
-        group: 0,
-        isAdmin: false
-    }
-];
-
-appdata.lobby.playersList = new app.collections.PlayersList(testusers);
-
 
 var $pageLobbysettings = $("#page-lobbysettings");
 
@@ -174,7 +172,7 @@ $("#button-lobbysettings-reset").click(function() {
     });
 });
 
-
+//}());
 // Updates (create, update, delete)
 //  //appdata.players.set({
 //    id: 123,
@@ -254,7 +252,7 @@ $("#button-lobbysettings-reset").click(function() {
 //// Spielstart
 //
 
-//$pageMap = $("#page-map");
+var $pageMap = $("#page-map");
 //
 //$pageMap.on("pagebeforeshow", function() {
 //    var mapContainer = document.getElementById("map-container");

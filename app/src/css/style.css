@@ -1,6 +1,10 @@
+/*
+ * Landing Page
+ */
 .err-el {
     opacity: 0;
     background-color: #DE4C4C;
+    text-align: center;
 }
 
 .err-el.show-err {
@@ -9,7 +13,9 @@
     -webkit-transition: opacity 1s;
 }
 
-
+/*
+ * Lobby Page
+ */
 .player-list {
     list-style: none;
     padding: 0;
@@ -68,7 +74,7 @@
     position: relative;
     border: none;
 }
-.player-list:not(.player-admin-list) .player-delete {
+#page-lobby:not(.player-admin) .player-delete {
     display: none;
 }
 
@@ -109,8 +115,13 @@
     color: black;
 }
 
-
-
+#page-lobby.player-admin #button-lobby-leave {
+    display: none;
+}
+#page-lobby:not(.player-admin) #button-lobby-start,
+#page-lobby:not(.player-admin) #button-lobby-close {
+    display: none;
+}
 
 #popup-select-group ul {
     margin: 0;
@@ -127,7 +138,9 @@
     border-width: 0;
 }
 
-
+/*
+ * Map Page
+ */
 #page-map,
 #map-container,
 #map-container > div {
