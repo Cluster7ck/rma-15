@@ -1,65 +1,4 @@
-// Statische Daten
-var app = {
-    models: {},
-    collections: {},
-    views: {},
-    settings: {
-        httpServer: "http://localhost:8080",
-        websocketServer: "ws://localhost:8080",
-        nameKey: "USERNAME"
-    },
-    //TODO more groups?
-    groupColors: {
-        0: "transparent",
-        1: "red",
-        2: "green",
-        3: "blue",
-        4: "cyan",
-        5: "magenta",
-        6: "yellow"
-    },
-    JST: {}
-};
 
-app.validate = {
-    isValidName: function(name) {
-        if (typeof name === "string" && name.length > 0) {
-            return true;
-        }
-        return false;
-    }
-};
-
-app.JST.player = _.template('\
-        <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
-        <div class="player-info">\
-            <div class="player-group">G<%= data.group %></div>\
-            <button class="ui-btn ui-icon-delete ui-btn-icon-notext player-delete"></button>\
-        </div>'
-        , {variable: "data"}
-);
-
-app.JST.playerSelf = _.template('\
-        <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
-        <div class="player-info">\
-            <button class="ui-btn player-group">G<%= data.group %></button>\
-        </div>'
-        , {variable: "data"}
-);
-
-app.init = function() {
-    var name = localStorage.getItem(app.settings.nameKey);
-    appdata.self = new app.models.Player({
-        pid: -1,
-        name: name || "Unknown",
-        group: -1,
-        isAdmin: false
-    });
-    // Name lokal Speichen
-    appdata.self.on("change:name", function() {
-        localStorage.setItem(app.settings.nameKey, appdata.self.get("name"));
-    });
-};
 // TODO Einstellungspage für Name
 var setUsername = function() {
     var name = "test";
@@ -70,63 +9,7 @@ var setUsername = function() {
     }
 };
 
-app.ajax = function(url, jsonObj) {
-    return new Promise(function(resolve, reject) {
-        $.ajax({
-            url: url,
-            data: jsonObj,
-            dataType: "json",
-            error: reject,
-            success: resolve
-        });
-    });
-};
-
-// Join & Create Lobby
-
-app.createLobby = function(pw) {
-    return app.ajax(app.settings.httpServer + "/createLobby", {
-        name: appdata.self.get("name"),
-        pw: pw
-    }).then(function(json) {
-        // Lobby setup
-        appdata.lobby.lid = json.lid;
-        appdata.self.set({
-            pid: json.pid,
-            group: 0,
-            isAdmin: true
-        }, {silent: true});
-        appdata.lobby.playersList = new app.collections.PlayersList();
-    });
-};
-
-app.joinLobby = function(lid, pw) {
-    return app.ajax(app.settings.httpServer + "/joinLobby", {
-        name: appdata.self.get("name"),
-        lid: lid,
-        pw: pw
-    }).then(function(json) {
-        // Lobby join
-        appdata.lobby.lid = lid;
-        appdata.self.set({
-            pid: json.pid,
-            group: 1,
-            isAdmin: false
-        }, {silent: true});
-        appdata.lobby.playersList = new app.collections.PlayersList(json.playerCollection);
-    });
-};
-
-// Daten, welche zur Laufzeit erstellt werden
-var appdata = {
-    // Settings für aktuelle Lobby
-    lobby: {
-        // TODO default settings
-    },
-    // Daten über diesen Spieler in aktueller Lobby
-    self: null
-};
-
+// Lobby create & join
 var $pageLobby = $("#page-lobby");
 
 $("#form-create-lobby").submit(function(event) {
@@ -174,8 +57,9 @@ $("#form-join-lobby").submit(function(event) {
 
 });
 
+// Lobby
 $pageLobby.on("pagecreate", function() {
-    
+
     $selfContainer = $pageLobby.find(".player-self-container");
     var selfView = new app.views.PlayerSelf({model: appdata.self});
     $selfContainer.append(selfView.render().el);
@@ -192,134 +76,21 @@ $pageLobby.on("pagebeforeshow", function() {
     $pageLobby.find(".lobby-id").html(appdata.lobby.lid);
 });
 
+
+// Tests
 $pageInstructions = $("#page-instructions");
 $pageInstructions.on(
         "pagebeforechange\
- pagebeforecreate\
- pagebeforehide\
- pagebeforeshow\
- pagechange\
- pagecreate\
- pagehide\
- pageinit\
- pageshow", function(e) {
+        pagebeforecreate\
+        pagebeforehide\
+        pagebeforeshow\
+        pagechange\
+        pagecreate\
+        pagehide\
+        pageinit\
+        pageshow", function(e) {
             console.log("instruct", e.type);
         });
-
-
-
-
-app.models.Player = Backbone.Model.extend({
-    isMrx: function() {
-        return this.get("group") === 0;
-    },
-    isAdmin: function() {
-        return this.get("isAdmin");
-    },
-    getGroupColor: function() {
-        return app.groupColors[this.get("group")];
-    }
-});
-
-app.collections.PlayersList = Backbone.Collection.extend({
-    model: app.models.Player
-});
-
-
-// Shared Code
-var playerRender = function() {
-    this.$el.html(this.template(this.model.attributes));
-        this.$el.toggleClass("player-is-mrx", this.model.isMrx());
-        this.$el.toggleClass("player-is-admin", this.model.isAdmin());
-        if (!this.model.isMrx()) this.$(".player-group").css("background-color", this.model.getGroupColor());
-        return this;
-};
-
-/*
- * View für einen einzelnen Player in der Players Collection
- */
-app.views.Player = Backbone.View.extend({
-    tagName: "li",
-    template: app.JST.player,
-    initialize: function() {
-        this.listenTo(this.model, "change", this.render);
-        // Beim löschen aus Collection
-        this.listenTo(this.model, "remove", this.remove);
-    },
-    events: {
-        "click .player-delete": "deletePlayer"
-    },
-    render: playerRender,
-    deletePlayer: function(e) {
-        if (!appdata.self.isAdmin()) return;
-        // TODO delete
-        // frage user
-        
-        console.log(e);
-    }
-});
-
-/*
- * View für lokalen Spieler
- */
-app.views.PlayerSelf = Backbone.View.extend({
-    className: "player-self",
-    template: app.JST.playerSelf,
-    initialize: function() {
-        this.listenTo(this.model, "change", this.render);
-    },
-    events: {
-        "click .player-group": "changeGroup"
-    },
-    render: playerRender,
-    changeGroup: function() {
-        console.log("change group");
-        //TODO frage user
-        var newGroup = 2;
-        appdata.self.set("group", newGroup);
-    },
-    cleanup: function() {
-        this.stopListening();
-    }
-});
-
-/*
- * View für die Players Collection
- */
-app.views.Players = Backbone.View.extend({
-    tagName: "ul",
-    className: "player-list",
-    initialize: function(options, $counterEl) {
-        this.$counterEl = $counterEl;
-        this.listenTo(this.collection, "add", this.renderOne);
-        this.listenTo(this.collection, "add", this.updateCounter);
-        this.listenTo(this.collection, "remove", this.updateCounter);
-    },
-    render: function() {
-        this.$el.toggleClass("player-admin-list", appdata.self.isAdmin());
-        // Ganze Collection rendern
-        this.collection.each(function(player) {
-            this.renderOne(player);
-        }, this);
-        return this;
-    },
-    // Einzelnen Player hinzufügen
-    renderOne: function(player) {
-        var playerView = new app.views.Player({model: player});
-        // Zum aufräumen
-        playerView.listenTo(this, "cleanup", playerView.stopListening);
-        this.$el.append(playerView.render().el);
-    },
-    // Zähler anzeigen
-    updateCounter: function() {
-        this.$counterEl.html(this.collection.length);
-    },
-    cleanup: function() {
-        // Events bei jedem Player view löschen
-        this.trigger("cleanup");
-        this.stopListening();
-    }
-});
 
 
 var testusers = [
@@ -351,30 +122,6 @@ var testusers = [
 appdata.lobby.playersList = new app.collections.PlayersList(testusers);
 
 
-// ---> Startpage
-// ---> Einstellungen
-
-// ---> Erstellen einer Lobby
-// sende anfrage
-// sende name
-// 
-
-
-// ----> Betreten der Lobby
-// sende anfrage
-// sende lobby id
-// sende name
-// Bestätigung vom Server
-// TODO update lobby settings
-// appdata.lobby ...
-
-// ---->
-// Lobby Page aufrufen
-// Player Collection erstellen
-
-
-// Player View Rendern
-
 
 // Updates (create, update, delete)
 //  //appdata.players.set({
@@ -396,7 +143,6 @@ appdata.lobby.playersList = new app.collections.PlayersList(testusers);
 
 // Updates Einstellungen
 // TODO Einstellungen anzeigen
-
 
 
 // Lobby verlassen
@@ -444,9 +190,9 @@ appdata.lobby.playersList = new app.collections.PlayersList(testusers);
 //}
 
 // TODO Einstellungen beachten
-appdata.lobby.radius = 4000;
+//appdata.lobby.radius = 4000;
 //// TODO auslesen per GPS
-appdata.lobby.mapCenter = {lat: 52.283343, lng: 8.035860};
+//appdata.lobby.mapCenter = {lat: 52.283343, lng: 8.035860};
 //
 //
 //// ---> admin startet
@@ -552,8 +298,6 @@ appdata.lobby.mapCenter = {lat: 52.283343, lng: 8.035860};
 //    map: map,
 //    title: 'Hello World!'
 //});
-
-
 
 
 //
