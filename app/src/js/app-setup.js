@@ -75,10 +75,10 @@
         });
     };
     // GET anfragen zum Server (JSON)
-    app.ajax = function(url, jsonObj) {
+    var getJSON = function(url, jsonObj) {
         return new Promise(function(resolve, reject) {
             $.ajax({
-                url: url,
+                url: app.settings.httpServer + url,
                 data: jsonObj,
                 dataType: "json",
                 error: reject,
@@ -89,7 +89,7 @@
 
     // Join & Create Lobby
     app.createLobby = function(pw) {
-        return app.ajax(app.settings.httpServer + "/createLobby", {
+        return getJSON("/createLobby", {
             name: appdata.self.get("name"),
             pw: pw
         }).then(function(json) {
@@ -102,12 +102,12 @@
                 group: 0,
                 isAdmin: true
             }, {silent: true});
-            appdata.lobby.playersList = new app.collections.PlayersList();
+            openLobby();
         });
     };
 
     app.joinLobby = function(lid, pw) {
-        return app.ajax(app.settings.httpServer + "/joinLobby", {
+        return getJSON("/joinLobby", {
             name: appdata.self.get("name"),
             lid: lid,
             pw: pw
@@ -121,13 +121,18 @@
                 isAdmin: false
             }, {silent: true});
             // Vorhandene Spieler
-            appdata.lobby.playersList = new app.collections.PlayersList(json.playerCollection);
+            openLobby(json.playerCollection);
         });
+    };
+    
+    var openLobby = function(playerArray) {
+        appdata.lobby.playersList = new app.collections.PlayersList(playerArray);
+        // Default Settings Objekt
+        appdata.lobby.settings = _.mapObject(app.lobbySettingsDefaults, _.property("defaultVal"));
     };
 
     app.leaveLobby = function() {
         // TODO Kill websocket
-        appdata.lobby.settings = {};
         delete appdata.lobby.playersList;
     };
 
@@ -135,7 +140,7 @@
     window.appdata = {
         // Settings für aktuelle Lobby
         lobby: {
-            settings: {}
+            settings: null
         },
         // Model für lokalen Spieler
         self: null

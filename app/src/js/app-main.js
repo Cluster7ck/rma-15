@@ -10,7 +10,7 @@ var setUsername = function() {
     }
 };
 
-// Lobby create & join
+// Page Lobby create & join
 var $pageLanding = $("#page-landing");
 
 $("#form-create-lobby").submit(function(event) {
@@ -54,10 +54,12 @@ var showLoginError = function($errorEl, xhr) {
     });
 };
 
+// Page Lobby
 var $pageLobby = $("#page-lobby");
+
 var openLobby = function() {
     // Setup
-    $pageLobby.toggleClass("player-admin", appdata.self.get("isAdmin"));
+    $pageLobby.toggleClass("player-admin", appdata.self.isAdmin());
     // View für lokalen Spieler
     var $selfContainer = $pageLobby.find(".player-self-container");
     var selfView = new app.views.PlayerSelf({model: appdata.self}, $("#popup-select-group"));
@@ -68,7 +70,7 @@ var openLobby = function() {
     var $counter = $pageLobby.find(".player-counter");
     var playersListView = new app.views.PlayersList({collection: appdata.lobby.playersList}, $counter);
     $listContainer.append(playersListView.render().el);
-    appdata.playersListView = playersListView;
+    appdata.lobby.playersListView = playersListView;
     // Lobby ID Anzeigen
     $pageLobby.find(".lobby-id").html(appdata.lobby.lid);
     $.mobile.pageContainer.pagecontainer("change", $pageLobby);
@@ -92,31 +94,31 @@ var closeLobby = function() {
     appdata.selfView.cleanup();
     appdata.selfView.remove();
     delete appdata.selfView;
-    appdata.playersListView.cleanup();
-    appdata.playersListView.remove();
-    delete appdata.playersListView;
+    appdata.lobby.playersListView.cleanup();
+    appdata.lobby.playersListView.remove();
+    delete appdata.lobby.playersListView;
     app.leaveLobby();
     $.mobile.pageContainer.pagecontainer("change", $pageLanding);
 };
 
 
 // Tests
-var $pageInstructions = $("#page-instructions");
-$pageInstructions.on(
-        "pagebeforechange\
-        pagebeforecreate\
-        pagebeforehide\
-        pagebeforeshow\
-        pagechange\
-        pagecreate\
-        pagehide\
-        pageinit\
-        pageshow", function(e) {
-            console.log("instruct", e.type);
-        });
+//var $pageInstructions = $("#page-instructions");
+//$pageInstructions.on(
+//        "pagebeforechange\
+//        pagebeforecreate\
+//        pagebeforehide\
+//        pagebeforeshow\
+//        pagechange\
+//        pagecreate\
+//        pagehide\
+//        pageinit\
+//        pageshow", function(e) {
+//            console.log("instruct", e.type);
+//        });
 
+// Page Lobbysettings
 var $pageLobbysettings = $("#page-lobbysettings");
-
 var $lobbysettingsInputs;
 
 $pageLobbysettings.on("pagecreate", function() {
@@ -130,11 +132,12 @@ $pageLobbysettings.on("pagecreate", function() {
         maptype: $("#input-lobbysettings-maptype")
     };
 });
+
 // Bei jedem Page show die Lobbysettings anzeigen
 $pageLobbysettings.on("pagebeforeshow", function() {
     _.each($lobbysettingsInputs, function($el, setting) {
         // Gespeicherter Werte oder default Werte
-        var value = appdata.lobby.settings[setting] || app.lobbySettingsDefaults[setting].defaultVal;
+        var value = appdata.lobby.settings[setting];
         $el.val(value);
         // UI Updaten
         if ($el.prop("name") === "maptype") {

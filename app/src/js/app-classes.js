@@ -119,6 +119,7 @@
             this.collection.each(function(player) {
                 this.renderOne(player);
             }, this);
+            this.updateCounter();
             return this;
         },
         // Einzelnen Player hinzufügen
