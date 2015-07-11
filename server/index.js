@@ -200,7 +200,6 @@ var lobbyPrototype = {
                     pid: player.pid,
                     name: player.name,
                     group: player.group,
-                    isMrx: this.mrx === player,
                     isAdmin: this.admin === player
                 });
             }
@@ -229,8 +228,9 @@ var lobbys = {
         newLobby.playerMapPending = new Map();
         newLobby.playerCounter = 0;
         newLobby.max = 100;
+        
         var newAdmin = newLobby.addPlayer(adminName);
-
+        newAdmin.group = 0;
         newLobby.mrx = newAdmin;
         newLobby.admin = newAdmin;
         this.lobbyMapPending.set(newLobby.lid, newLobby);
@@ -244,7 +244,7 @@ var lobbys = {
         return newLobby;
     },
     getLobby: function(lid) {
-        return this.lobbyMap.get(validate.parseId(lid));
+        return this.lobbyMap.get(lid);
     },
     getPendingLobby: function(lid) {
         return this.lobbyMapPending.get(lid);

@@ -99,11 +99,11 @@ label.ui-btn {
     border-radius: 0.1em;
 }*/
 /* Icon-only buttons */
-.ui-btn-icon-notext.ui-btn-corner-all,
+/*.ui-btn-icon-notext.ui-btn-corner-all,
 .ui-btn-icon-notext.ui-corner-all {
     -webkit-border-radius: 1em;
     border-radius: 1em;
-}
+}*/
 /* Radius clip workaround for cleaning up corner trapping */
 /*.ui-btn-corner-all,
 .ui-corner-all {
@@ -141,28 +141,28 @@ label.ui-btn {
 .ui-btn-icon-top:after,
 .ui-btn-icon-bottom:after,
 .ui-btn-icon-notext:after {
-    background-color: transparent /*{global-icon-color}*/;
-    background-color: transparent /*{global-icon-disc}*/;
+/*    background-color: transparent;
+    background-color: transparent;*/
     background-position: center center;
     background-repeat: no-repeat;
-    -webkit-border-radius: 1em;
-    border-radius: 1em;
+/*    -webkit-border-radius: 1em;
+    border-radius: 1em;*/
 }
 /* Alt icons */
-.ui-alt-icon.ui-btn:after,
+/*.ui-alt-icon.ui-btn:after,
 .ui-alt-icon .ui-btn:after,
 html .ui-alt-icon.ui-checkbox-off:after,
 html .ui-alt-icon.ui-radio-off:after,
 html .ui-alt-icon .ui-checkbox-off:after,
 html .ui-alt-icon .ui-radio-off:after {
-    background-color: transparent /*{global-icon-color}*/;
-    background-color: transparent /*{global-icon-disc}*/;
-}
+    background-color: transparent;
+    background-color: transparent;
+}*/
 /* No disc */
-.ui-nodisc-icon.ui-btn:after,
+/*.ui-nodisc-icon.ui-btn:after,
 .ui-nodisc-icon .ui-btn:after {
     background-color: transparent;
-}
+}*/
 /* Icon shadow */
 /*.ui-shadow-icon.ui-btn:after,
 .ui-shadow-icon .ui-btn:after {
@@ -404,3 +404,7 @@ button[disabled],
     outline-width: 1px;
     outline-style: auto;    
 }*/
+
+.ui-slider-track .ui-btn.ui-slider-handle {
+    border-radius: 50%;
+}

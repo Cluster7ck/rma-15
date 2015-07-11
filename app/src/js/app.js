@@ -5,10 +5,12 @@ var app = {
     views: {},
     settings: {
         httpServer: "http://localhost:8080",
-        websocketServer: "ws://localhost:8080"
+        websocketServer: "ws://localhost:8080",
+        nameKey: "USERNAME"
     },
     //TODO more groups?
     groupColors: {
+        0: "transparent",
         1: "red",
         2: "green",
         3: "blue",
@@ -18,6 +20,103 @@ var app = {
     },
     JST: {}
 };
+
+app.validate = {
+    isValidName: function(name) {
+        if (typeof name === "string" && name.length > 0) {
+            return true;
+        }
+        return false;
+    }
+};
+
+app.JST.player = _.template('\
+        <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
+        <div class="player-info">\
+            <div class="player-group">G<%= data.group %></div>\
+            <button class="ui-btn ui-icon-delete ui-btn-icon-notext player-delete"></button>\
+        </div>'
+        , {variable: "data"}
+);
+
+app.JST.playerSelf = _.template('\
+        <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
+        <div class="player-info">\
+            <button class="ui-btn player-group">G<%= data.group %></button>\
+        </div>'
+        , {variable: "data"}
+);
+
+app.init = function() {
+    var name = localStorage.getItem(app.settings.nameKey);
+    appdata.self = new app.models.Player({
+        pid: -1,
+        name: name || "Unknown",
+        group: -1,
+        isAdmin: false
+    });
+    // Name lokal Speichen
+    appdata.self.on("change:name", function() {
+        localStorage.setItem(app.settings.nameKey, appdata.self.get("name"));
+    });
+};
+// TODO Einstellungspage für Name
+var setUsername = function() {
+    var name = "test";
+    if (app.validate.isValidName(name)) {
+        appdata.self.set("name", name);
+    } else {
+        // TODO show error
+    }
+};
+
+app.ajax = function(url, jsonObj) {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: url,
+            data: jsonObj,
+            dataType: "json",
+            error: reject,
+            success: resolve
+        });
+    });
+};
+
+// Join & Create Lobby
+
+app.createLobby = function(pw) {
+    return app.ajax(app.settings.httpServer + "/createLobby", {
+        name: appdata.self.get("name"),
+        pw: pw
+    }).then(function(json) {
+        // Lobby setup
+        appdata.lobby.lid = json.lid;
+        appdata.self.set({
+            pid: json.pid,
+            group: 0,
+            isAdmin: true
+        }, {silent: true});
+        appdata.lobby.playersList = new app.collections.PlayersList();
+    });
+};
+
+app.joinLobby = function(lid, pw) {
+    return app.ajax(app.settings.httpServer + "/joinLobby", {
+        name: appdata.self.get("name"),
+        lid: lid,
+        pw: pw
+    }).then(function(json) {
+        // Lobby join
+        appdata.lobby.lid = lid;
+        appdata.self.set({
+            pid: json.pid,
+            group: 1,
+            isAdmin: false
+        }, {silent: true});
+        appdata.lobby.playersList = new app.collections.PlayersList(json.playerCollection);
+    });
+};
+
 // Daten, welche zur Laufzeit erstellt werden
 var appdata = {
     // Settings für aktuelle Lobby
@@ -25,135 +124,162 @@ var appdata = {
         // TODO default settings
     },
     // Daten über diesen Spieler in aktueller Lobby
-    self: {}
+    self: null
 };
-// TODO save / read from localstorage
-appdata.self.name = "Noname";
-
-app.JST.player = _.template('\
-        <div class="player-name"><%- data.name %></div>\
-        <div class="player-info">\
-            <% if (data.mrx) { %>\
-            <div class="player-x"></div>\
-            <% } else { %>\
-            <div class="player-group" data-group="<%- data.group %>"></div>\
-            <% } %>\
-            <div class="player-delete"></div>\
-        </div>'
-        , {variable: "data"}
-);
-
-// Join & Create Lobby
-app.createLobby = function(pw) {
-    return $.getJSON(app.settings.httpServer + "/createLobby", {
-        name: appdata.self.name,
-        pw: pw
-    });
-}
-app.joinLobby = function(lid, pw) {
-    return $.getJSON(app.settings.httpServer + "/joinLobby", {
-        name: appdata.self.name,
-        lid: lid,
-        pw: pw
-    });
-}
 
 var $pageLobby = $("#page-lobby");
 
-$("#from-create-lobby").submit(function(event) {
+$("#form-create-lobby").submit(function(event) {
     event.preventDefault();
-    var $errEl = $("#from-create-lobby .err-el");
+    var $errEl = $("#form-create-lobby .err-el");
     var pw = $("#input-create-lobby-pw").val();
 
-    app.createLobby(pw).done(function(json) {
-        appdata.lobby.lid = json.lid;
-        appdata.self.pid = json.pid;
-        appdata.self.isAdmin = true;
-        appdata.self.isMrx = true;
-        // TODO Lobby setup
-        $(":mobile-pagecontainer").pagecontainer("change", $pageLobby);
-    }).fail(function(xhr, textStatus, errorThrown) {
-        $errEl.html(xhr.responseJSON.errorMsg || "Fehler bei Netzwerkanfrage");
-        $errEl.removeClass("show-err");
-        setTimeout(function() {
-            $errEl.addClass("show-err");
-        }, 0);
+    app.createLobby(pw).then(function() {
+        $.mobile.pageContainer.pagecontainer("change", $pageLobby);
+    }, function(xhr) {
+//        $.mobile.pageContainer.pagecontainer("change", $pageLobby);
+        console.log(xhr);
+        $errEl.html((xhr.responseJSON && xhr.responseJSON.errorMsg) || "Fehler bei Netzwerkanfrage");
+
+        requestAnimationFrame(function() {
+            $errEl.removeClass("show-err");
+            requestAnimationFrame(function() {
+                $errEl.addClass("show-err");
+            });
+        });
     });
 
 });
 
 $("#form-join-lobby").submit(function(event) {
     event.preventDefault();
-    var $errEl = $("#from-join-lobby .err-el");
+    var $errEl = $("#form-join-lobby .err-el");
     var lid = $("#input-join-lobby-lid").val();
     var pw = $("#input-join-lobby-lid").val();
 
-    app.joinLobby(lid, pw).done(function(data) {
-        appdata.lobby.lid = lid;
-        appdata.self.pid = data.pid;
-        appdata.self.isAdmin = false;
-        appdata.self.isMrx = false;
+    app.joinLobby(lid, pw).then(function(data) {
 
-        $(":mobile-pagecontainer").pagecontainer("change", $pageLobby);
-    }).fail(function(xhr, textStatus, errorThrown) {
-        $errEl.html(xhr.responseJSON.errorMsg || "Fehler bei Netzwerkanfrage");
+        $.mobile.pageContainer.pagecontainer("change", $pageLobby);
+    }, function(xhr) {
+        $errEl.html((xhr.responseJSON && xhr.responseJSON.errorMsg) || "Fehler bei Netzwerkanfrage");
         $errEl.removeClass("show-err");
-        setTimeout(function() {
-            $errEl.addClass("show-err");
-        }, 0);
+
+        requestAnimationFrame(function() {
+            $errEl.removeClass("show-err");
+            requestAnimationFrame(function() {
+                $errEl.addClass("show-err");
+            });
+        });
     });
 
 });
 
-app.models.Player = Backbone.Model.extend({
+$pageLobby.on("pagecreate", function() {
+    
+    $selfContainer = $pageLobby.find(".player-self-container");
+    var selfView = new app.views.PlayerSelf({model: appdata.self});
+    $selfContainer.append(selfView.render().el);
+    appdata.selfView = selfView;
+
+    $listContainer = $pageLobby.find(".player-list-container");
+    $counter = $pageLobby.find(".player-counter");
+    var playersListView = new app.views.Players({collection: appdata.lobby.playersList}, $counter);
+    $listContainer.append(playersListView.render().el);
+    appdata.playersListView = playersListView;
 });
 
-app.collections.Players = Backbone.Collection.extend({
+$pageLobby.on("pagebeforeshow", function() {
+    $pageLobby.find(".lobby-id").html(appdata.lobby.lid);
+});
+
+$pageInstructions = $("#page-instructions");
+$pageInstructions.on(
+        "pagebeforechange\
+ pagebeforecreate\
+ pagebeforehide\
+ pagebeforeshow\
+ pagechange\
+ pagecreate\
+ pagehide\
+ pageinit\
+ pageshow", function(e) {
+            console.log("instruct", e.type);
+        });
+
+
+
+
+app.models.Player = Backbone.Model.extend({
+    isMrx: function() {
+        return this.get("group") === 0;
+    },
+    isAdmin: function() {
+        return this.get("isAdmin");
+    },
+    getGroupColor: function() {
+        return app.groupColors[this.get("group")];
+    }
+});
+
+app.collections.PlayersList = Backbone.Collection.extend({
     model: app.models.Player
 });
+
+
+// Shared Code
+var playerRender = function() {
+    this.$el.html(this.template(this.model.attributes));
+        this.$el.toggleClass("player-is-mrx", this.model.isMrx());
+        this.$el.toggleClass("player-is-admin", this.model.isAdmin());
+        if (!this.model.isMrx()) this.$(".player-group").css("background-color", this.model.getGroupColor());
+        return this;
+};
 
 /*
  * View für einen einzelnen Player in der Players Collection
  */
 app.views.Player = Backbone.View.extend({
     tagName: "li",
+    template: app.JST.player,
     initialize: function() {
         this.listenTo(this.model, "change", this.render);
+        // Beim löschen aus Collection
         this.listenTo(this.model, "remove", this.remove);
     },
-    render: function() {
-        this.$el.html(app.JST.player(this.model.attributes));
-        this.$el.toggleClass("player-mrx", this.model.get("mrx"));
-        this.$el.toggleClass("player-admin", this.model.get("admin"));
-
-        return this;
-    }
-});
-
-app.views.PlayerAdmin = app.views.Player.extend({
     events: {
         "click .player-delete": "deletePlayer"
     },
+    render: playerRender,
     deletePlayer: function(e) {
+        if (!appdata.self.isAdmin()) return;
         // TODO delete
+        // frage user
+        
         console.log(e);
     }
 });
 
-app.views.PlayerSettings = Backbone.View.extend({
+/*
+ * View für lokalen Spieler
+ */
+app.views.PlayerSelf = Backbone.View.extend({
+    className: "player-self",
+    template: app.JST.playerSelf,
+    initialize: function() {
+        this.listenTo(this.model, "change", this.render);
+    },
     events: {
-        // TODO make name / group changable
-        // change name
         "click .player-group": "changeGroup"
     },
-    render: function() {
-        this.$el.html(app.JST.player(this.model.attributes));
-        // Klasse anpassen
-        this.$el.toggleClass("player-mrx", this.model.get("mrx"));
-        return this;
+    render: playerRender,
+    changeGroup: function() {
+        console.log("change group");
+        //TODO frage user
+        var newGroup = 2;
+        appdata.self.set("group", newGroup);
     },
-    changeName: function() {
-        // TODO save to localstorage
+    cleanup: function() {
+        this.stopListening();
     }
 });
 
@@ -162,67 +288,69 @@ app.views.PlayerSettings = Backbone.View.extend({
  */
 app.views.Players = Backbone.View.extend({
     tagName: "ul",
-    id: "player-list",
-    className: function() {
-        if (appdata.self.isAdmin) {
-            return "player-list-admin";
-        }
-    },
-    initialize: function() {
-        // Bei reset rendern
-        this.listenTo(this.collection, "reset", this.render);
-        // Bei einem neuen Player in der Collection
+    className: "player-list",
+    initialize: function(options, $counterEl) {
+        this.$counterEl = $counterEl;
         this.listenTo(this.collection, "add", this.renderOne);
+        this.listenTo(this.collection, "add", this.updateCounter);
+        this.listenTo(this.collection, "remove", this.updateCounter);
     },
     render: function() {
+        this.$el.toggleClass("player-admin-list", appdata.self.isAdmin());
         // Ganze Collection rendern
         this.collection.each(function(player) {
             this.renderOne(player);
         }, this);
         return this;
     },
+    // Einzelnen Player hinzufügen
     renderOne: function(player) {
-        var view = appdata.self.isAdmin ? app.views.PlayerAdmin : app.views.Player;
-        var playerView = new view({model: player});
-        //playerView.listenTo(this, "close", playerView.stopListening);
+        var playerView = new app.views.Player({model: player});
+        // Zum aufräumen
+        playerView.listenTo(this, "cleanup", playerView.stopListening);
         this.$el.append(playerView.render().el);
-    }, close: function() {
-        //Feuer remove event auf alle Player
-        this.collection.each(function(player) {
-            player.trigger("remove");
-        });
+    },
+    // Zähler anzeigen
+    updateCounter: function() {
+        this.$counterEl.html(this.collection.length);
+    },
+    cleanup: function() {
+        // Events bei jedem Player view löschen
+        this.trigger("cleanup");
+        this.stopListening();
     }
 });
 
 
 var testusers = [
     {
-        id: 123,
+        pid: 123,
         name: "Username",
         group: 1,
-        mrx: false,
-        admin: false
+        isAdmin: false
     }, {
-        id: 124,
-        name: "Ravensburger Anwalt für Namensrechte",
-        group: 2,
-        mrx: false, admin: false
+        pid: 124,
+        name: "Admin & Mr z",
+        group: 0,
+        isAdmin: true
     },
     {
-        id: 125,
-        name: "1337 H4X0R <script>alert('ha!')</script>",
+        pid: 125,
+        name: "Admin",
         group: 2,
-        mrx: false,
-        admin: false
+        isAdmin: true
     },
     {
-        id: 126,
-        name: "Nicht Mr. X",
-        group: 1,
-        mrx: true,
-        admin: false
+        pid: 126,
+        name: "mr z",
+        group: 0,
+        isAdmin: false
     }
 ];
+
+appdata.lobby.playersList = new app.collections.PlayersList(testusers);
+
+
 // ---> Startpage
 // ---> Einstellungen
 
@@ -244,13 +372,9 @@ var testusers = [
 // Lobby Page aufrufen
 // Player Collection erstellen
 
-appdata.lobby.players = new app.collections.Players(testusers);
 
 // Player View Rendern
 
-var $playerListContainer = $("#lobby .playerList");
-var playersView = new app.views.Players({collection: appdata.lobby.players});
-$playerListContainer.append(playersView.render().el);
 
 // Updates (create, update, delete)
 //  //appdata.players.set({
@@ -283,37 +407,6 @@ $playerListContainer.append(playersView.render().el);
 // 
 // goto Startpage
 
-//app.views.Manage = Backbone.View.extend({
-//    initialize: function() {
-//        if (!appdata.collections.forms) {
-//            // Collection erstellen, wenn noch nicht vorhanden
-//            this.collection = appdata.collections.forms = new app.collections.Forms;
-//            // Aus Datenbank lesen
-//            this.collection.fetch({reset: true}).catch(function(err) {
-//                console.warn(err);
-//            });
-//        }
-//        // für Effekte am Update Button
-//        this.showSuccess = this.showEffect.bind(this, "success");
-//        this.showError = this.showEffect.bind(this, "error");
-//        _.bindAll(this, "removeEffects");
-//    },
-//    render: function() {
-//        this.$el.html(JST.manage());
-//        this.$formlist = this.$(".list");
-//        this.formsView = new app.views.Forms({collection: this.collection});
-//        // Die Form-Liste wird direkt gerendert. Wenn die Collection leer ist, passiert nichts und nach dem "reset" aus der Datenbank wird nochmal gerendert
-//        this.$formlist.append(this.formsView.render().el);
-//        return this;
-//    },
-//    // Aufräumen
-//    onClose: function() {
-//        this.collection.removeOfflineCache();
-//        this.formsView.trigger("close");
-//        this.formsView.stopListening();
-//    }
-//});
-
 //var ws = new WebSocket("ws://" + app.settings.serverHost + ":" + app.settings.serverPort + "/ws?lid=1");
 
 //function wsevents(ws) {
@@ -334,21 +427,6 @@ $playerListContainer.append(playersView.render().el);
 //    };
 //}
 
-//var lid;
-//var ws;
-//$("#createLobby").on("click", function() {
-//    $.getJSON("http://localhost:8080/createLobby", {name: "adminName", pw: "123"}).done(function(json) {
-//        console.log(json);
-//        lid = json.lid;
-//    });
-//});
-//
-//$("#joinLobby").on("click", function() {
-//    $.getJSON("http://localhost:8080/joinLobby", {name: "PlayerName", pw: "123", lid: lid}).done(function(json) {
-//        console.log(json);
-//    });
-//});
-//
 //$("#ws1").on("click", function() {
 //    ws = new WebSocket("ws://localhost:8080/ws?lid=" + lid + "&pid=0");
 //    wsevents(ws);
@@ -366,9 +444,9 @@ $playerListContainer.append(playersView.render().el);
 //}
 
 // TODO Einstellungen beachten
-//appdata.lobby.radius = 4000;
+appdata.lobby.radius = 4000;
 //// TODO auslesen per GPS
-//appdata.lobby.center = {lat: 52.283343, lng: 8.035860};
+appdata.lobby.mapCenter = {lat: 52.283343, lng: 8.035860};
 //
 //
 //// ---> admin startet
@@ -377,36 +455,42 @@ $playerListContainer.append(playersView.render().el);
 //// ---> Spielbeginn
 //// Spielstart
 //
-//var mapOptions = {
-//    center: appdata.lobby.center,
-//    zoom: 11,
-//    panControl: false,
-//    zoomControl: true,
-//    zoomControlOptions: {
-//        style: google.maps.ZoomControlStyle.SMALL
-//    },
-//    mapTypeControl: false,
-//    scaleControl: false,
-//    streetViewControl: false,
-//    overviewMapControl: false
+
+//$pageMap = $("#page-map");
 //
-//};
-//appdata.lobby.map = new google.maps.Map(document.getElementById("game-map"), mapOptions);
+//$pageMap.on("pagebeforeshow", function() {
+//    var mapContainer = document.getElementById("map-container");
+//    var mapDiv = document.createElement("div");
+//    mapContainer.appendChild(mapDiv);
 //
-////map.addListener("click", function(e) {
-////    console.log(e);
-////});
+//    var mapOptions = {
+//        center: appdata.lobby.mapCenter,
+//        zoom: 11,
+//        panControl: false,
+//        zoomControl: true,
+//        zoomControlOptions: {
+//            style: google.maps.ZoomControlStyle.SMALL
+//        },
+//        mapTypeControl: false,
+//        scaleControl: false,
+//        streetViewControl: false,
+//        overviewMapControl: false
+//    };
 //
-//new google.maps.Circle({
-//    strokeColor: '#FF0000',
-//    strokeOpacity: 1,
-//    strokeWeight: 2,
-//    fillColor: '#FFFFFF',
-//    fillOpacity: 0,
-//    clickable: false,
-//    map: appdata.lobby.map,
-//    center: appdata.lobby.center,
-//    radius: appdata.lobby.radius
+//    var map = appdata.lobby.map = new google.maps.Map(mapDiv, mapOptions);
+//
+//    new google.maps.Circle({
+//        strokeColor: '#FF0000',
+//        strokeOpacity: 1,
+//        strokeWeight: 2,
+//        fillColor: '#FFFFFF',
+//        fillOpacity: 0,
+//        clickable: false,
+//        map: map,
+//        center: appdata.lobby.mapCenter,
+//        radius: appdata.lobby.radius
+//    });
+//
 //});
 
 // TODO zeit pos nächste mrx pos
@@ -492,3 +576,9 @@ $playerListContainer.append(playersView.render().el);
 
 // Spielende -> cleanup
 // goto Lobby
+
+if (window.cordova) {
+    document.addEventListener("deviceready", app.init);
+} else {
+    app.init();
+}
