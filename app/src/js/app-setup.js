@@ -41,19 +41,13 @@ var app = {
             defaultVal: 0
         }
     },
-    //TODO more groups?
-    groupColors: {
-        0: "transparent",
-        1: "red",
-        2: "green",
-        3: "blue",
-        4: "cyan",
-        5: "magenta",
-        6: "yellow"
-    },
     // Templates
     JST: {},
     validate: {
+        parseId: function(id) {
+            id = Number.parseInt(id);
+            return id >= 0 ? id : NaN;
+        },
         isValidName: function(name) {
             if (typeof name === "string" && name.length > 0) {
                 return true;

@@ -4,7 +4,7 @@
 app.JST.player = _.template('\
         <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
         <div class="player-info">\
-            <div class="player-group">G<%= data.group %></div>\
+            <div class="player-group" data-group="<%= data.group %>">G<%= data.group %></div>\
             <button class="ui-btn ui-icon-delete ui-btn-icon-notext player-delete"></button>\
         </div>'
         , {variable: "data"}
@@ -13,7 +13,7 @@ app.JST.player = _.template('\
 app.JST.playerSelf = _.template('\
         <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
         <div class="player-info">\
-            <button class="ui-btn player-group">G<%= data.group %></button>\
+            <button class="ui-btn player-group" data-group="<%= data.group %>">G<%= data.group %></button>\
         </div>'
         , {variable: "data"}
 );
@@ -22,15 +22,13 @@ app.JST.playerSelf = _.template('\
  * Model für Lokalen & andere Spieler
  */
 app.models.Player = Backbone.Model.extend({
+    idAttribute: "pid",
     // group 0 = mrx
     isMrx: function() {
         return this.get("group") === 0;
     },
     isAdmin: function() {
-        return this.get("isAdmin");
-    },
-    getGroupColor: function() {
-        return app.groupColors[this.get("group")];
+        return !!this.get("isAdmin");
     }
 });
 /*
@@ -43,10 +41,9 @@ app.collections.PlayersList = Backbone.Collection.extend({
 // Shared Code
 var playerRender = function() {
     this.$el.html(this.template(this.model.attributes));
-        this.$el.toggleClass("player-is-mrx", this.model.isMrx());
-        this.$el.toggleClass("player-is-admin", this.model.isAdmin());
-        if (!this.model.isMrx()) this.$(".player-group").css("background-color", this.model.getGroupColor());
-        return this;
+    this.$el.toggleClass("player-is-mrx", this.model.isMrx());
+    this.$el.toggleClass("player-is-admin", this.model.isAdmin());
+    return this;
 };
 
 /*
@@ -79,28 +76,35 @@ app.views.Player = Backbone.View.extend({
 app.views.PlayerSelf = Backbone.View.extend({
     className: "player-self",
     template: app.JST.playerSelf,
-    initialize: function() {
+    initialize: function(options, $popup) {
         this.listenTo(this.model, "change", this.render);
+        this.saveGroup = this.saveGroup.bind(this);
+        this.$popup = $popup;
+        $popup.on("click", "button", this.saveGroup);
     },
     events: {
         "click .player-group": "changeGroup"
     },
     render: playerRender,
     changeGroup: function() {
-        console.log("change group");
-        //TODO frage user
-        var newGroup = 2;
-        appdata.self.set("group", newGroup);
+        this.$popup.popup("open");
+    },
+    saveGroup: function(e) {
+        this.$popup.popup("close");
+        // TODO
+        var newGroup = app.validate.parseId(e.target.dataset.group);
+        // newGroup -> server
     },
     cleanup: function() {
         this.stopListening();
+        this.$popup.off("click", this.saveGroup);
     }
 });
 
 /*
  * View für die Players Collection
  */
-app.views.Players = Backbone.View.extend({
+app.views.PlayersList = Backbone.View.extend({
     tagName: "ul",
     className: "player-list",
     initialize: function(options, $counterEl) {

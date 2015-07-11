@@ -10,71 +10,66 @@ var setUsername = function() {
 };
 
 // Lobby create & join
-var $pageLobby = $("#page-lobby");
 
 $("#form-create-lobby").submit(function(event) {
     event.preventDefault();
-    var $errEl = $("#form-create-lobby .err-el");
-    var pw = $("#input-create-lobby-pw").val();
+    var pw = $("#input-create-lobby-pw");
 
-    app.createLobby(pw).then(function() {
-        $.mobile.pageContainer.pagecontainer("change", $pageLobby);
+    app.createLobby(pw.val()).then(function() {
+        // Bei Erfolg input löschen
+        pw.val("");
+        showLobby();
     }, function(xhr) {
-//        $.mobile.pageContainer.pagecontainer("change", $pageLobby);
-        console.log(xhr);
-        $errEl.html((xhr.responseJSON && xhr.responseJSON.errorMsg) || "Fehler bei Netzwerkanfrage");
-
-        requestAnimationFrame(function() {
-            $errEl.removeClass("show-err");
-            requestAnimationFrame(function() {
-                $errEl.addClass("show-err");
-            });
-        });
+        showLoginError($("#form-create-lobby .err-el"), xhr);
     });
 
 });
 
 $("#form-join-lobby").submit(function(event) {
     event.preventDefault();
-    var $errEl = $("#form-join-lobby .err-el");
-    var lid = $("#input-join-lobby-lid").val();
-    var pw = $("#input-join-lobby-lid").val();
+    var lid = $("#input-join-lobby-lid");
+    var pw = $("#input-join-lobby-lid");
 
-    app.joinLobby(lid, pw).then(function(data) {
-
-        $.mobile.pageContainer.pagecontainer("change", $pageLobby);
+    app.joinLobby(lid.val(), pw.val()).then(function() {
+        lid.val("");
+        pw.val("");
+        showLobby();
     }, function(xhr) {
-        $errEl.html((xhr.responseJSON && xhr.responseJSON.errorMsg) || "Fehler bei Netzwerkanfrage");
-        $errEl.removeClass("show-err");
-
-        requestAnimationFrame(function() {
-            $errEl.removeClass("show-err");
-            requestAnimationFrame(function() {
-                $errEl.addClass("show-err");
-            });
-        });
+        showLoginError($("#form-join-lobby .err-el"), xhr);
     });
 
 });
 
-// Lobby
-$pageLobby.on("pagecreate", function() {
+var showLoginError = function($errorEl, xhr) {
+    $errorEl.html((xhr.responseJSON && xhr.responseJSON.errorMsg) || "Fehler bei Netzwerkanfrage");
+    // Fehler blinken lassen
+    requestAnimationFrame(function() {
+        // Klasse kurz entfernen, Frame abfragen
+        $errorEl.removeClass("show-err");
+        requestAnimationFrame(function() {
+            $errorEl.addClass("show-err");
+        });
+    });
+};
 
+var $pageLobby = $("#page-lobby");
+var showLobby = function() {
+    // Setup
+    // View für lokalen Spieler
     $selfContainer = $pageLobby.find(".player-self-container");
-    var selfView = new app.views.PlayerSelf({model: appdata.self});
+    var selfView = new app.views.PlayerSelf({model: appdata.self}, $("#popup-select-group"));
     $selfContainer.append(selfView.render().el);
     appdata.selfView = selfView;
-
+    // View für Liste
     $listContainer = $pageLobby.find(".player-list-container");
     $counter = $pageLobby.find(".player-counter");
-    var playersListView = new app.views.Players({collection: appdata.lobby.playersList}, $counter);
+    var playersListView = new app.views.PlayersList({collection: appdata.lobby.playersList}, $counter);
     $listContainer.append(playersListView.render().el);
     appdata.playersListView = playersListView;
-});
-
-$pageLobby.on("pagebeforeshow", function() {
+    // Lobby ID Anzeigen
     $pageLobby.find(".lobby-id").html(appdata.lobby.lid);
-});
+    $.mobile.pageContainer.pagecontainer("change", $pageLobby);
+};
 
 
 // Tests
