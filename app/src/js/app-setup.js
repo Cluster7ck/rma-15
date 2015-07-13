@@ -51,7 +51,7 @@
                 return id >= 0 ? id : NaN;
             },
             isValidName: function(name) {
-                if (typeof name === "string" && name.length > 0) {
+                if (typeof name === "string" && name.length > 0 && name.length < 200) {
                     return true;
                 }
                 return false;
@@ -124,7 +124,7 @@
             openLobby(json.playerCollection);
         });
     };
-    
+
     var openLobby = function(playerArray) {
         appdata.lobby.playersList = new app.collections.PlayersList(playerArray);
         // Default Settings Objekt

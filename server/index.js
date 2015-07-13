@@ -5,6 +5,7 @@ var WebSocketServer = require("ws").Server;
 var log = require("./logger.js");
 
 var serverPort = 8080;
+var verifyTimeout = 5000;
 
 var defaultHeaders = {
     "Content-Type": "application/json",
@@ -14,18 +15,22 @@ var defaultHeaders = {
 var ERROR_CODES = {
     SERVER_FULL: 1,
     LOBBY_FULL: 2,
-    LOBBY_NOT_FOUND: 3,
-    INCORRECT_PW: 4,
-    INVALID_NAME: 5,
-    INVALID_PW: 6
+    LOBBYID_MISSING: 3,
+    PW_MISSING: 4,
+    INVALID_PW: 5,
+    INVALID_NAME: 6,
+    LOBBY_NOT_FOUND: 7,
+    INCORRECT_PW: 8
 };
 var ERROR_MSG = {
     1: "Server voll",
     2: "Lobby voll",
-    3: "Lobby nicht gefunden",
-    4: "Passwort falsch",
-    5: "Ungültiger Username",
-    6: "Ungültiges Passwort"
+    3: "Lobby ID nicht angegeben",
+    4: "Passwort nicht angegeben",
+    5: "Ungültiges Passwort",
+    6: "Ungültiger Username",
+    7: "Lobby nicht gefunden",
+    8: "Passwort falsch"
 };
 
 // HTTP Anfrage mit Fehler beenden
@@ -72,21 +77,35 @@ httpServer.on("clientError", function(err) {
 
 var getActions = {
     "joinLobby": function(req, res, query) {
+        var lid = query.lid;
+        var pw = query.pw;
+        var name = query.name;
 
-        var lobby = lobbys.getLobby(validate.parseId(query.lid));
+        if (lid === undefined || lid === "") {
+            // 422 Unprocessable Entity
+            writeErr(res, 422, ERROR_CODES.LOBBYID_MISSING);
+            return;
+        }
+        if (pw === undefined || pw === "") {
+            // 422 Unprocessable Entity
+            writeErr(res, 422, ERROR_CODES.PW_MISSING);
+            return;
+        }
+
+        var lobby = lobbys.getLobby(validate.parseId(lid));
         if (lobby === undefined) {
             // Not Found
             writeErr(res, 404, ERROR_CODES.LOBBY_NOT_FOUND);
             return;
         }
-        if (!validate.isValidName(query.name)) {
-            // 422 Unprocessable Entity
-            writeErr(res, 422, ERROR_CODES.INVALID_NAME);
-            return;
-        }
-        if (lobby.pw !== query.pw) {
+        if (lobby.pw !== pw) {
             // 401 Unauthorized
             writeErr(res, 401, ERROR_CODES.INCORRECT_PW);
+            return;
+        }
+        if (!validate.isValidName(name)) {
+            // 422 Unprocessable Entity
+            writeErr(res, 422, ERROR_CODES.INVALID_NAME);
             return;
         }
         if (lobby.isFull()) {
@@ -95,7 +114,7 @@ var getActions = {
             return;
         }
         // New Pending Player
-        var newPlayer = lobby.addPlayer(query.name);
+        var newPlayer = lobby.addPlayer(name);
         // Mit pid und allen anderen Spielern als Array antworten
         writeEnd(res, {
             pid: newPlayer.pid,
@@ -106,6 +125,11 @@ var getActions = {
         var pw = query.pw;
         var name = query.name;
 
+        if (pw === undefined || pw === "") {
+            // 422 Unprocessable Entity
+            writeErr(res, 422, ERROR_CODES.PW_MISSING);
+            return;
+        }
         if (!validate.isValidPw(pw)) {
             // 422 Unprocessable Entity
             writeErr(res, 422, ERROR_CODES.INVALID_PW);
@@ -144,13 +168,13 @@ var validate = {
         }
     },
     isValidPw: function(pw) {
-        if (typeof pw === "string" && pw.length > 0) {
+        if (typeof pw === "string" && pw.length > 0 && pw.length < 200) {
             return true;
         }
         return false;
     },
     isValidName: function(name) {
-        if (typeof name === "string" && name.length > 0) {
+        if (typeof name === "string" && name.length > 0 && name.length < 200) {
             return true;
         }
         return false;
@@ -176,7 +200,7 @@ var lobbyPrototype = {
         this.pendingTimer = setTimeout(function() {
             this.playerMapPending.delete(newPlayer.pid);
             log.http("Pending player removed from lobby:", this.lid);
-        }.bind(this), 5000);
+        }.bind(this), verifyTimeout);
         return newPlayer;
     },
     removePlayer: function(pid) {
@@ -228,7 +252,7 @@ var lobbys = {
         newLobby.playerMapPending = new Map();
         newLobby.playerCounter = 0;
         newLobby.max = 100;
-        
+
         var newAdmin = newLobby.addPlayer(adminName);
         newAdmin.group = 0;
         newLobby.mrx = newAdmin;
@@ -239,7 +263,7 @@ var lobbys = {
         this.pendingTimer = setTimeout(function() {
             this.lobbyMapPending.delete(newLobby.lid);
             log.http("Pending pobby removed:", newLobby.lid);
-        }.bind(this), 5000);
+        }.bind(this), verifyTimeout);
 
         return newLobby;
     },
