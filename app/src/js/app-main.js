@@ -12,14 +12,18 @@ var setUsername = function() {
 
 // Page Lobby create & join
 var $pageLanding = $("#page-landing");
+var $inputCreateLobbyPw = $("#input-create-lobby-pw");
+// Focus auf Pw input
+$("#popup-create-lobby").on("popupafteropen", function() {
+    $inputCreateLobbyPw.focus();
+});
 
-$("#form-create-lobby").submit(function(event) {
-    event.preventDefault();
-    var pw = $("#input-create-lobby-pw");
+$("#form-create-lobby").submit(function(e) {
+    e.preventDefault();
 
-    app.createLobby(pw.val()).then(function() {
+    app.createLobby($inputCreateLobbyPw.val()).then(function() {
         // Bei Erfolg input löschen
-        pw.val("");
+        $inputCreateLobbyPw.val("");
         openLobby();
     }, function(xhr) {
         showLoginError($("#form-create-lobby .err-el"), xhr);
@@ -27,24 +31,29 @@ $("#form-create-lobby").submit(function(event) {
 
 });
 
-$("#form-join-lobby").submit(function(event) {
-    event.preventDefault();
-    var lid = $("#input-join-lobby-lid");
-    var pw = $("#input-join-lobby-pw");
+var $inputJoinLobbyLid = $("#input-join-lobby-lid");
+var $inputJoinLobbyPw = $("#input-join-lobby-pw");
+// Focus auf lid input
+$("#popup-join-lobby").on("popupafteropen", function() {
+    $inputJoinLobbyLid.focus();
+});
 
-    app.joinLobby(lid.val(), pw.val()).then(function() {
-        lid.val("");
-        pw.val("");
+$("#form-join-lobby").submit(function(e) {
+    e.preventDefault();
+
+    app.joinLobby($inputJoinLobbyLid.val(), $inputJoinLobbyPw.val()).then(function() {
+        $inputJoinLobbyLid.val("");
+        $inputJoinLobbyPw.val("");
         openLobby();
     }, function(xhr) {
         showLoginError($("#form-join-lobby .err-el"), xhr);
     });
 
 });
-
+// Zeigt Fehler in $errorEl und setzt show-err Klasse
 var showLoginError = function($errorEl, xhr) {
     $errorEl.html((xhr.responseJSON && xhr.responseJSON.errorMsg) || "Fehler bei Netzwerkanfrage");
-    // Fehler blinken lassen
+    // Fehler Klasse resetten
     requestAnimationFrame(function() {
         // Klasse kurz entfernen, Frame abfragen
         $errorEl.removeClass("show-err");
