@@ -1,26 +1,6 @@
 (function() {
 
     /*
-     * Templates
-     */
-    app.JST.player = _.template('\
-        <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
-        <div class="player-info">\
-            <div class="player-group" data-group="<%= data.group %>">G<%= data.group %></div>\
-            <button class="ui-btn ui-icon-delete ui-btn-icon-notext player-delete"></button>\
-        </div>'
-            , {variable: "data"}
-    );
-
-    app.JST.playerSelf = _.template('\
-        <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>\
-        <div class="player-info">\
-            <button class="ui-btn player-group" data-group="<%= data.group %>">G<%= data.group %></button>\
-        </div>'
-            , {variable: "data"}
-    );
-
-    /*
      * Model für Lokalen & andere Spieler
      */
     app.models.Player = Backbone.Model.extend({
@@ -53,7 +33,7 @@
      */
     app.views.Player = Backbone.View.extend({
         tagName: "li",
-        template: app.JST.player,
+        template: _.template($("#template-player").html(), {variable: "data"}),
         initialize: function() {
             this.listenTo(this.model, "change", this.render);
             // Beim löschen aus Collection
@@ -77,7 +57,7 @@
      */
     app.views.PlayerSelf = Backbone.View.extend({
         className: "player-self",
-        template: app.JST.playerSelf,
+        template: _.template($("#template-self").html(), {variable: "data"}),
         initialize: function(options, $popup) {
             this.listenTo(this.model, "change", this.render);
             this.saveGroup = this.saveGroup.bind(this);

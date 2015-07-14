@@ -162,7 +162,23 @@
 
         </div><!-- /page Map -->
 
+        <script type="text/template" id="template-player">
+            <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>
+            <div class="player-info">
+                <div class="player-group" data-group="<%= data.group %>">G<%= data.group %></div>
+                <button class="ui-btn ui-icon-delete ui-btn-icon-notext player-delete"></button>
+            </div>
+        </script>
+
+        <script type="text/template" id="template-self">
+            <div class="player-name"><%- data.name %><% if (data.isAdmin) { %> (Admin)<% } %></div>
+            <div class="player-info">
+                <button class="ui-btn player-group" data-group="<%= data.group %>">G<%= data.group %></button>
+            </div>
+        </script>
+
         <script src="js/app-setup.js"></script>
+        <script src="js/app-ws.js"></script>
         <script src="js/app-classes.js"></script>
         <script src="js/app-main.js"></script>
     </body>
